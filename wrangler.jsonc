@@ -3,11 +3,14 @@
 	"name": "daiwa-memory",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "daiwa-memory",
+			"database_id": "af633c9a-a04d-4031-889f-4c95459f0dff",
 		},
 	],
 	"r2_buckets": [
@@ -17,9 +20,15 @@
 		},
 	],
 	// Sandboxed plugins require Worker Loader, available on Workers paid plans.
-	"worker_loaders": [{ "binding": "LOADER" }],
+	"worker_loaders": [
+		{
+			"binding": "LOADER"
+		}
+	],
 	// General maintenance cron trigger
 	"triggers": {
-		"crons": ["* * * * *"],
+		"crons": [
+			"* * * * *"
+		],
 	},
 }
