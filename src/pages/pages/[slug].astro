@@ -3,7 +3,7 @@ import {
 	getEmDashEntry,
 	getSeoMeta,
 	decodeSlug,
-	getSiteSettings,
+	getSiteSettingsWithCacheHint,
 } from "emdash";
 import { PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
@@ -23,7 +23,9 @@ if (!page) {
 }
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
-const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+const settings = await getSiteSettingsWithCacheHint();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle } = resolveBlogSiteIdentity(settings.data);
 const seo = getSeoMeta(page, {
 	siteTitle,
 	siteUrl: Astro.url.origin,

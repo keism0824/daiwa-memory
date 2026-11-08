@@ -102,43 +102,33 @@ function navCurrent(url: string): "page" | "true" | undefined {
 	return undefined;
 }
 
-const lang = getSiteLocale() ?? "en";
+const lang = getSiteLocale();
 const monogram = [...siteTitle.trim()][0]?.toUpperCase() ?? "";
 const year = new Date().getFullYear();
 ---
 
 <!doctype html>
-<html lang={lang}>
+{/* EmDash image variants honor the root light class before the system preference. */}
+<html lang={lang} class="light">
 	<head>
 		<meta charset="UTF-8" />
+		<meta name="color-scheme" content="light" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<Font cssVariable="--font-body" preload />
 		<Font cssVariable="--font-mono" />
+		<Font cssVariable="--font-japanese-serif" />
 		<title>{fullTitle}</title>
 		<EmDashHead page={pageCtx} />
 		<link
 			rel="alternate"
 			type="application/rss+xml"
-			title={`${siteTitle} RSS Feed`}
+			title={`${siteTitle} RSSフィード`}
 			href="/rss.xml"
 		/>
-		<script is:inline>
-			// Apply an explicit theme choice immediately to prevent flash.
-			// With no cookie, color-scheme: light dark follows the OS.
-			(function () {
-				var row = document.cookie.split("; ").find(function (item) {
-					return item.startsWith("theme=");
-				});
-				var theme = row ? row.slice(6) : null;
-				if (theme === "dark" || theme === "light") {
-					document.documentElement.classList.add(theme);
-				}
-			})();
-		</script>
 	</head>
 	<body>
 		<EmDashBodyStart page={pageCtx} />
-		<a href="#main" class="skip-link">Skip to content</a>
+		<a href="#main" class="skip-link">本文へ移動</a>
 		<header class="site-header">
 			<div class="frame site-header__inner">
 				<a href="/" class="brand">
@@ -163,7 +153,7 @@ const year = new Date().getFullYear();
 				</a>
 				{
 					menuItems.length > 0 && (
-						<nav class="site-nav" aria-label="Main">
+						<nav class="site-nav" aria-label="メインナビゲーション">
 							<ul>
 								{menuItems.map((item) => (
 									<li>
@@ -186,7 +176,7 @@ const year = new Date().getFullYear();
 					)
 				}
 				<div class="site-header__actions">
-					<div class="site-search" role="search" aria-label="Site">
+					<div class="site-search" role="search" aria-label="サイト内">
 						<svg
 							class="site-search__icon"
 							viewBox="0 0 24 24"
@@ -200,13 +190,19 @@ const year = new Date().getFullYear();
 							></path></svg
 						>
 						<LiveSearch
-							placeholder="Search"
+							placeholder="記録を検索"
 							class="site-search__field"
 							inputClass="site-search-input"
 							resultsClass="site-search-results"
 							resultClass="site-search-result"
 							collections={["posts", "pages"]}
-						/>
+							searchPage="/search"
+						>
+							<div slot="loading" class="emdash-live-search-loading">検索中…</div>
+							<div slot="no-results" class="emdash-live-search-no-results">
+								一致する記録はありません
+							</div>
+						</LiveSearch>
 						<kbd class="site-search__kbd" aria-hidden="true"
 							><span dir="ltr">⌘K</span></kbd
 						>
@@ -214,7 +210,7 @@ const year = new Date().getFullYear();
 					<a
 						href="/search"
 						class="icon-btn site-search-link"
-						aria-label="Search"
+						aria-label="検索"
 					>
 						<svg
 							viewBox="0 0 24 24"
@@ -231,28 +227,13 @@ const year = new Date().getFullYear();
 					{
 						isLoggedIn && (
 							<a href="/_emdash/admin" class="btn btn--ghost btn--sm nav-admin">
-								Admin
+								管理画面
 							</a>
 						)
 					}
 				</div>
 			</div>
 		</header>
-		<script is:inline>
-			// Inline, so the height is set before the browser scrolls to a URL fragment
-			(function () {
-				var header = document.querySelector(".site-header");
-				function setHeight() {
-					document.documentElement.style.setProperty(
-						"--header-height",
-						header.offsetHeight + "px",
-					);
-				}
-				setHeight();
-				new ResizeObserver(setHeight).observe(header);
-			})();
-		</script>
-
 		<main id="main" tabindex="-1">
 			<slot />
 		</main>
@@ -286,7 +267,7 @@ const year = new Date().getFullYear();
 					menuItems.length > 0 && (
 						<nav class="site-footer__col" aria-labelledby="footer-navigate">
 							<h2 id="footer-navigate" class="eyebrow">
-								Navigate
+								案内
 							</h2>
 							<ul class="site-footer__links">
 								{menuItems.map((item) => (
@@ -309,7 +290,7 @@ const year = new Date().getFullYear();
 					)
 				}
 				<div class="site-footer__col">
-					<h2 class="eyebrow">Connect</h2>
+					<h2 class="eyebrow">更新情報</h2>
 					<ul class="site-footer__links">
 						<li>
 							<a href="/rss.xml">
@@ -327,7 +308,7 @@ const year = new Date().getFullYear();
 										cy="19"
 										r="1"></circle></svg
 								>
-								RSS feed
+								RSSフィード
 							</a>
 						</li>
 					</ul>
@@ -339,127 +320,11 @@ const year = new Date().getFullYear();
 			<div class="band site-footer__bottom">
 				<div class="frame site-footer__bottom-inner">
 					<p class="site-footer__meta">
-						{`© ${year} ${siteTitle}.`} Powered by{" "}
-						<a href="https://emdashcms.com">EmDash</a>
+						{`© ${year} ${siteTitle}.`}
 					</p>
-					<div class="theme-switcher" role="group" aria-label="Color theme">
-						<button
-							type="button"
-							class="theme-btn"
-							data-theme="light"
-							aria-label="Light"
-						>
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								><circle cx="12" cy="12" r="4"></circle><path
-									d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-								></path></svg
-							>
-						</button>
-						<button
-							type="button"
-							class="theme-btn"
-							data-theme="dark"
-							aria-label="Dark"
-						>
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								><path
-									d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
-								></path></svg
-							>
-						</button>
-						<button
-							type="button"
-							class="theme-btn"
-							data-theme="system"
-							aria-label="System"
-						>
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								><rect x="2" y="3" width="20" height="14" rx="2"></rect><path
-									d="M8 21h8M12 17v4"></path></svg
-							>
-						</button>
-					</div>
 				</div>
 			</div>
 		</footer>
-
-		<script>
-			// Theme switcher
-			const themeBtns =
-				document.querySelectorAll<HTMLButtonElement>(".theme-btn");
-			const root = document.documentElement;
-
-			function setCookie(
-				name: string,
-				value: string,
-				maxAge: number = 31536000,
-			) {
-				const secure = location.protocol === "https:" ? "; Secure" : "";
-				if (value === "") {
-					document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax${secure}`;
-				} else {
-					document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
-				}
-			}
-
-			function setTheme(theme: string) {
-				if (theme === "system") {
-					setCookie("theme", "");
-					root.classList.remove("light", "dark");
-				} else {
-					setCookie("theme", theme);
-					root.classList.remove("light", "dark");
-					root.classList.add(theme);
-				}
-				updateActiveBtn(theme);
-			}
-
-			function updateActiveBtn(theme: string) {
-				themeBtns.forEach((btn) => {
-					const active = btn.dataset.theme === theme;
-					btn.classList.toggle("active", active);
-					btn.setAttribute("aria-pressed", String(active));
-				});
-			}
-
-			function getStoredTheme(): string {
-				const row = document.cookie
-					.split("; ")
-					.find((item) => item.startsWith("theme="));
-				return row?.slice(6) || "system";
-			}
-
-			// Initialize
-			const storedTheme = getStoredTheme();
-			setTheme(storedTheme);
-
-			themeBtns.forEach((btn) => {
-				btn.addEventListener("click", () => {
-					setTheme(btn.dataset.theme || "system");
-				});
-			});
-		</script>
 
 		<style is:global>
 			/*
@@ -498,40 +363,13 @@ const year = new Date().getFullYear();
 					padding: 0;
 				}
 
-				/*
-				 * Design tokens live in src/styles/tokens.css. Colors are
-				 * defined with light-dark(); these rules pin the scheme when
-				 * the footer switcher sets an explicit choice. With no class,
-				 * color-scheme: light dark follows the OS preference. The
-				 * @supports guard keeps the toggle from forcing dark UA form
-				 * controls on browsers stuck on the plain-light fallback.
-				 */
-				@supports (color: light-dark(#000, #fff)) {
-					:root.light {
-						color-scheme: light;
-					}
-
-					:root.dark {
-						color-scheme: dark;
-					}
-				}
-
 				html {
 					scroll-behavior: smooth;
 					-webkit-text-size-adjust: 100%;
 				}
 
-				/*
-				 * Fragment targets clear the sticky header. Not a scroll-padding
-				 * on html: that also applies to the search field inside the
-				 * header, and the page scrolls on every keystroke.
-				 * --header-height is measured by a script, since the header
-				 * grows when the menu wraps.
-				 */
 				:target {
-					scroll-margin-block-start: calc(
-						var(--header-height, var(--nav-height)) + var(--spacing-6)
-					);
+					scroll-margin-block-start: var(--spacing-6);
 				}
 
 				body {
@@ -1355,11 +1193,6 @@ const year = new Date().getFullYear();
 			}
 
 			.site-footer__bottom-inner {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				justify-content: space-between;
-				gap: var(--spacing-4);
 				padding-block: var(--spacing-5);
 			}
 
@@ -1372,51 +1205,8 @@ const year = new Date().getFullYear();
 				color: var(--color-text-secondary);
 			}
 
-			.theme-switcher {
-				display: inline-flex;
-				gap: 2px;
-				padding: 3px;
-				border-radius: var(--radius-full);
-				background: var(--color-fill);
-			}
-
-			.theme-btn {
-				display: grid;
-				place-items: center;
-				width: 1.75rem;
-				height: 1.75rem;
-				padding: 0;
-				border: 0;
-				border-radius: var(--radius-full);
-				background: transparent;
-				color: var(--color-muted);
-				cursor: pointer;
-				transition:
-					color var(--transition-fast),
-					background-color var(--transition-fast),
-					box-shadow var(--transition-fast);
-			}
-
-			.theme-btn:hover {
-				color: var(--color-text);
-			}
-
-			.theme-btn.active {
-				background: var(--color-surface);
-				color: var(--color-text);
-				box-shadow:
-					0 0 0 1px var(--color-ring),
-					var(--shadow-sm);
-			}
-
-			.theme-btn svg {
-				width: 15px;
-				height: 15px;
-			}
-
 			@media (forced-colors: active) {
-				.site-nav a[aria-current],
-				.theme-btn.active {
+				.site-nav a[aria-current] {
 					border: 1px solid CanvasText;
 				}
 			}
@@ -1482,6 +1272,7 @@ const year = new Date().getFullYear();
 			const searchInput =
 				document.querySelector<HTMLInputElement>(".site-search-input");
 			const kbd = document.querySelector(".site-search__kbd span");
+			searchInput?.setAttribute("aria-label", "記録を検索");
 			if (kbd && !/Mac|iPhone|iPad|iPod/.test(navigator.platform)) {
 				kbd.textContent = "Ctrl K";
 			}

@@ -5,11 +5,6 @@
   theme.css are unlayered, so they always beat these @layer base
   defaults -- no specificity tricks needed.
 
-  Colors use light-dark(): the first value applies in light mode, the
-  second in dark mode. Overriding a color with a plain value changes
-  both modes at once; use light-dark(<light>, <dark>) in an override to
-  keep them distinct.
-
   --font-body is defined by the font pipeline in astro.config.mjs, not
   here. To swap the loaded webfont, edit the fonts entry there. To use a
   system font, or a different face for headings only, override
@@ -18,27 +13,27 @@
 
 @layer base {
 	:root {
-		color-scheme: light dark;
+		color-scheme: only light;
 
 		/* Colors */
-		--color-bg: light-dark(#fafafa, #0a0a0a); /* page canvas */
-		--color-surface: light-dark(#ffffff, #141414); /* cards, inputs, menus */
-		--color-fill: light-dark(#f2f2f2, #1f1f1f); /* chips, code, hover fills */
-		--color-fill-strong: light-dark(#e8e8e8, #2a2a2a); /* hovered chips */
+		--color-bg: #fafafa; /* page canvas */
+		--color-surface: #ffffff; /* cards, inputs, menus */
+		--color-fill: #f2f2f2; /* chips, code, hover fills */
+		--color-fill-strong: #e8e8e8; /* hovered chips */
 		--color-bg-subtle: var(--color-fill); /* alternate rows, e.g. table stripes */
-		--color-text: light-dark(#171717, #ededed);
-		--color-text-secondary: light-dark(#525252, #a3a3a3);
-		--color-muted: light-dark(#6b6b6b, #8f8f8f); /* meta text, labels */
-		--color-border: light-dark(#e5e5e5, #262626); /* frame rails, dividers */
-		--color-border-subtle: light-dark(#efefef, #1c1c1c); /* dividers inside cards */
-		--color-border-strong: light-dark(#d4d4d4, #3a3a3a); /* rail crosshairs, input hover */
-		--color-ring: light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.09)); /* card hairline */
-		--color-media-outline: light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1));
-		--color-shadow: light-dark(rgb(0 0 0 / 0.06), rgb(0 0 0 / 0.4));
-		--color-shadow-strong: light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.6));
-		--color-brand: light-dark(#171717, #fafafa); /* buttons, links, focus */
-		--color-brand-hover: light-dark(#404040, #d4d4d4);
-		--color-on-brand: light-dark(#ffffff, #0a0a0a);
+		--color-text: #171717;
+		--color-text-secondary: #525252;
+		--color-muted: #6b6b6b; /* meta text, labels */
+		--color-border: #e5e5e5; /* frame rails, dividers */
+		--color-border-subtle: #efefef; /* dividers inside cards */
+		--color-border-strong: #d4d4d4; /* rail crosshairs, input hover */
+		--color-ring: rgb(0 0 0 / 0.07); /* card hairline */
+		--color-media-outline: rgb(0 0 0 / 0.1);
+		--color-shadow: rgb(0 0 0 / 0.06);
+		--color-shadow-strong: rgb(0 0 0 / 0.12);
+		--color-brand: #171717; /* buttons, links, focus */
+		--color-brand-hover: #404040;
+		--color-on-brand: #ffffff;
 		--color-brand-ring: color-mix(in srgb, var(--color-brand) 15%, transparent);
 
 		/* EmDash search theming */
@@ -145,32 +140,5 @@
 			0 0 0 1px var(--color-ring), 0 2px 4px var(--color-shadow),
 			0 16px 32px -12px var(--color-shadow-strong);
 		--shadow-lg: 0 0 0 1px var(--color-ring), 0 16px 40px -12px var(--color-shadow-strong);
-	}
-
-	/*
-	 * Light-mode values for browsers without light-dark() (Safari < 17.5,
-	 * Chrome < 123). Must mirror the light values above.
-	 */
-	@supports not (color: light-dark(#000, #fff)) {
-		:root {
-			color-scheme: light;
-			--color-bg: #fafafa;
-			--color-surface: #ffffff;
-			--color-fill: #f2f2f2;
-			--color-fill-strong: #e8e8e8;
-			--color-text: #171717;
-			--color-text-secondary: #525252;
-			--color-muted: #6b6b6b;
-			--color-border: #e5e5e5;
-			--color-border-subtle: #efefef;
-			--color-border-strong: #d4d4d4;
-			--color-ring: rgb(0 0 0 / 0.07);
-			--color-media-outline: rgb(0 0 0 / 0.1);
-			--color-shadow: rgb(0 0 0 / 0.06);
-			--color-shadow-strong: rgb(0 0 0 / 0.12);
-			--color-brand: #171717;
-			--color-brand-hover: #404040;
-			--color-on-brand: #ffffff;
-		}
 	}
 }

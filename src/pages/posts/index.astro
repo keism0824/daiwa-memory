@@ -1,5 +1,9 @@
 ---
-import { getEmDashCollection, getTermsForEntries } from "emdash";
+import {
+	getEmDashCollection,
+	getTaxonomyTermsWithCacheHint,
+	getTermsForEntries,
+} from "emdash";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../../components/PostCard.astro";
 import Pagination from "../../components/Pagination.astro";
@@ -19,83 +23,132 @@ const {
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
-// Single batched query for tags across all posts, instead of one
-// getEntryTerms() call per post (which would be N round-trips).
-// Bylines are already hydrated on entry.data.bylines.
-const tagsByEntry = await getTermsForEntries(
-	"posts",
-	posts.map((p) => p.data.id),
-	"tag",
-);
-
-const postsWithTags = posts.map((post) => ({
-	post,
-	tags: tagsByEntry.get(post.data.id) ?? [],
-}));
+const entryIds = posts.map((post) => post.data.id);
+const [tagsByEntry, categoriesByEntry, categoryResult] = await Promise.all([
+	getTermsForEntries("posts", entryIds, "tag"),
+	getTermsForEntries("posts", entryIds, "category"),
+	getTaxonomyTermsWithCacheHint("category", { includeCounts: false }),
+]);
+if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 ---
 
-<Base title="All Posts" description="Browse all blog posts">
-	<header class="band intro">
+<Base title="記録一覧" description="大和地区の記録を公開日順に掲載しています。">
+	<header class="band">
 		<div class="frame">
-			<p class="eyebrow">Archive</p>
-			<h1 class="intro__title">All Posts</h1>
-			<p class="intro__lead">Every post, newest first.</p>
+			<div class="paper-sheet archive-heading">
+				<p class="archive-heading__label">大和地区</p>
+				<h1 class="intro__title">記録一覧</h1>
+				<p class="paper-reading archive-heading__note">開発のころの記憶から、今日の暮らしまで。大和地区の記録を公開日の新しい順に並べています。</p>
+				{categoryResult.data.length > 0 && (
+					<nav class="archive-categories" aria-label="分類から探す">
+						<p>分類から探す</p>
+						<ul role="list">
+							{categoryResult.data.map((term) => (
+								<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
+							))}
+						</ul>
+					</nav>
+				)}
+			</div>
 		</div>
 	</header>
 
-	<section class="band section archive-band">
+	<div class="band archive-band">
 		<div class="frame">
-			{
-				posts.length === 0 ? (
-					<div class="empty-state">
-						<h2 class="empty-state__title">
-							{cursor ? "No more posts" : "No posts yet"}
-						</h2>
-						<p class="empty-state__text">
-							{cursor
-								? "You have reached the end of the archive."
-								: "Published posts will show up here."}
-						</p>
-						{cursor && (
-							<div class="empty-state__actions">
-								<a href="/posts" class="btn btn--ghost">
-									First page
-								</a>
-							</div>
-						)}
-					</div>
-				) : (
-					<>
-						<ol class="archive__list">
-							{postsWithTags.map(({ post, tags }) => (
-								<li>
-									<PostCard post={post} tags={tags} variant="row" />
-								</li>
-							))}
-						</ol>
-						<Pagination
-							basePath="/posts"
-							cursor={cursor}
-							nextCursor={nextCursor}
-						/>
-					</>
-				)
-			}
+			<div class="paper-sheet">
+				{
+					posts.length === 0 ? (
+						<div class="archive-empty">
+							<h2>
+								{cursor ? "これ以降の記録はありません" : "記録はまだありません"}
+							</h2>
+							<p class="paper-reading">
+								{cursor
+									? "一覧の最後まで表示しました。"
+									: "公開された記録は、こちらに掲載します。"}
+							</p>
+							{cursor && (
+								<a href="/posts" class="paper-link">最初のページへ</a>
+							)}
+						</div>
+					) : (
+						<>
+							<ol class="archive-list" role="list">
+								{posts.map((post) => (
+									<li>
+										<PostCard
+											post={post}
+											tags={tagsByEntry.get(post.data.id)}
+											categories={categoriesByEntry.get(post.data.id)}
+											variant="row"
+										/>
+									</li>
+								))}
+							</ol>
+							<Pagination
+								basePath="/posts"
+								cursor={cursor}
+								nextCursor={nextCursor}
+							/>
+						</>
+					)
+				}
+			</div>
 		</div>
-	</section>
+	</div>
 </Base>
 
 <style>
-	/* The band's rule doubles as the first row divider */
-	.archive-band {
-		padding-block-start: 0;
+	.archive-heading {
+		padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4.5rem);
 	}
 
-	.archive__list {
+	.archive-heading__label {
+		margin-block-end: var(--spacing-4);
+		color: var(--color-muted);
+		font-family: var(--font-reading);
+		font-size: var(--font-size-sm);
+		letter-spacing: 0.16em;
+	}
+
+	.archive-heading__note {
+		margin-block-start: var(--spacing-4);
+		color: var(--color-text-secondary);
+	}
+
+	.archive-band {
+		padding-block-end: clamp(4rem, 8vw, 7rem);
+	}
+
+	.archive-categories {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--spacing-1) var(--spacing-6);
+		margin-block-start: var(--spacing-8);
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	.archive-categories ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2) var(--spacing-4);
 		list-style: none;
 	}
 
-	.archive__list > li + li {
-		border-block-start: 1px solid var(--color-border);
+	.archive-categories a {
+		display: inline-block;
+		padding-block: var(--spacing-1);
+	}
+
+	.archive-empty {
+		display: grid;
+		justify-items: start;
+		gap: var(--spacing-2);
+	}
+
+	.archive-empty h2 {
+		font-size: var(--font-size-xl);
 	}
 </style>

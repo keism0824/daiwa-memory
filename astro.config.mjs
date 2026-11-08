@@ -24,7 +24,14 @@ export default defineConfig({
 			name: "Inter",
 			cssVariable: "--font-body",
 			weights: [400, 500, 600, 700],
-			fallbacks: ["sans-serif"],
+			fallbacks: ["Hiragino Sans", "Yu Gothic", "Meiryo", "sans-serif"],
+		},
+		{
+			provider: fontProviders.google(),
+			name: "Noto Serif JP",
+			cssVariable: "--font-japanese-serif",
+			weights: [400, 600],
+			fallbacks: ["Yu Mincho", "Hiragino Mincho ProN", "serif"],
 		},
 		{
 			provider: fontProviders.google(),

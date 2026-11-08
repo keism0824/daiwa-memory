@@ -7,12 +7,7 @@
   of them here: declarations in this file are unlayered, so they always
   beat the @layer base defaults in tokens.css.
 
-  Colors are defined with light-dark(). Overriding with a plain color
-  changes light and dark mode at once; use light-dark(<light>, <dark>)
-  to set different values per mode.
-
-  Set the three brand tokens together, as in the example below:
-  --color-on-brand defaults to near-black in dark mode.
+  Set the three brand tokens together when changing the accent color.
 
   Webfonts are loaded in astro.config.mjs (--font-body, --font-mono).
   Swap the loaded font there; use overrides here for system fonts or a
@@ -21,9 +16,9 @@
   Example:
 
   :root {
-    --color-brand: light-dark(#0f766e, #2dd4bf);
-    --color-brand-hover: light-dark(#115e59, #5eead4);
-    --color-on-brand: light-dark(#ffffff, #0a0a0a);
+    --color-brand: #0f766e;
+    --color-brand-hover: #115e59;
+    --color-on-brand: #ffffff;
     --font-heading: "Iowan Old Style", Georgia, serif;
     --radius-lg: 18px;
     --radius-xl: 24px;
@@ -31,4 +26,133 @@
 */
 
 :root {
+	--font-reading: var(--font-japanese-serif, "Yu Mincho", "Hiragino Mincho ProN", serif);
+	--font-heading: var(--font-reading);
+	--font-size-label: 0.8125rem;
+	--font-size-display: clamp(2rem, 1.35rem + 3vw, 3.75rem);
+	--leading-tight: 1.25;
+	--leading-snug: 1.45;
+	--tracking-tight: 0.015em;
+	--tracking-snug: 0.01em;
+	--content-width: 42.5rem;
+	--radius-lg: 3px;
+	--radius-xl: 3px;
+	--shadow-card: none;
+	--shadow-card-hover: none;
+	--paper-measure: 42rem;
+	--index-measure: 49rem;
+}
+
+:root {
+	--color-bg: #f8f6f1;
+	--color-surface: #faf6ed;
+	--color-fill: #ede5d7;
+	--color-fill-strong: #e7dccb;
+	--color-text: #2e2923;
+	--color-text-secondary: #51483e;
+	--color-muted: #5e5549;
+	--color-border: #d4c7b5;
+	--color-border-subtle: #dfd4c4;
+	--color-border-strong: #867764;
+	--color-brand: #734923;
+	--color-brand-hover: #543619;
+	--color-on-brand: #fffaf2;
+}
+
+:where(.intro__title, .section-head__title) {
+	line-break: strict;
+	overflow-wrap: anywhere;
+}
+
+.intro__title {
+	max-inline-size: none;
+	line-height: var(--leading-tight);
+}
+
+.eyebrow {
+	font-family: var(--font-body);
+	letter-spacing: 0.09em;
+}
+
+body::before,
+.band::before,
+.band::after,
+:root body > .site-header::before,
+:root body > .site-header::after {
+	content: none;
+}
+
+.band {
+	border-block-start: 0;
+}
+
+:root body > .site-header {
+	position: relative;
+	background: var(--color-bg);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+:root .site-header .site-header__inner {
+	border-inline: 0;
+}
+
+:root .brand .brand__mark {
+	display: none;
+}
+
+:root .brand .brand__name {
+	font-family: var(--font-reading);
+	letter-spacing: 0.04em;
+}
+
+:root header.site-header .site-nav a[aria-current],
+:root header.site-header .site-nav a:hover {
+	background: transparent;
+	box-shadow: none;
+	text-decoration: underline;
+	text-underline-offset: 0.34em;
+}
+
+:root .site-header .site-search .site-search-input {
+	border-radius: 2px;
+	background: transparent;
+}
+
+:root .site-search .site-search__kbd {
+	box-shadow: none;
+}
+
+.site-footer.band {
+	border-block-start: 1px solid var(--color-border);
+}
+
+.paper-sheet {
+	max-inline-size: var(--index-measure);
+	margin-inline: auto;
+}
+
+.paper-reading {
+	max-inline-size: var(--paper-measure);
+	font-family: var(--font-reading);
+	font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+	line-height: 1.9;
+	line-break: strict;
+	overflow-wrap: anywhere;
+}
+
+.paper-link {
+	color: var(--color-brand);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+}
+
+.paper-link:hover {
+	color: var(--color-brand-hover);
+}
+
+.archive-list {
+	display: grid;
+	gap: clamp(1.75rem, 3vw, 2.5rem);
+	list-style: none;
 }

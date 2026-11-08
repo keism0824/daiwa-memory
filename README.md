@@ -14,7 +14,7 @@ A clean, minimal blog built with [EmDash](https://github.com/emdash-cms/emdash) 
 - Full-text search
 - RSS feed
 - SEO metadata and JSON-LD
-- Dark/light mode
+- Fixed light reading theme
 
 ## Pages
 
@@ -34,7 +34,6 @@ A clean, minimal blog built with [EmDash](https://github.com/emdash-cms/emdash) 
 | | Desktop | Mobile |
 |---|---|---|
 | Light | ![homepage light desktop](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-light-desktop.jpg) | ![homepage light mobile](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-light-mobile.jpg) |
-| Dark | ![homepage dark desktop](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-dark-desktop.jpg) | ![homepage dark mobile](https://raw.githubusercontent.com/emdash-cms/emdash/main/assets/templates/blog/latest/homepage-dark-mobile.jpg) |
 
 ## Infrastructure
 

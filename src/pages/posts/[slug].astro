@@ -5,15 +5,16 @@ import {
 	getTermsForEntries,
 	getSeoMeta,
 	decodeSlug,
-	getSiteSettings,
+	getSiteSettingsWithCacheHint,
 } from "emdash";
-import { Image, PortableText, WidgetArea } from "emdash/ui";
+import { PortableText, WidgetArea } from "emdash/ui";
 import { Comments, CommentForm } from "emdash/ui/comments";
 import Base from "../../layouts/Base.astro";
+import ArticleFigure from "../../components/ArticleFigure.astro";
 import Byline from "../../components/Byline.astro";
 import PostCard from "../../components/PostCard.astro";
 import { formatDate } from "../../utils/locale";
-import { getReadingTime } from "../../utils/reading-time";
+import { formatReadingTime, getReadingTime } from "../../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../../utils/site-identity";
 import "../../styles/prose.css";
 
@@ -53,7 +54,9 @@ function getImageUrl(img: unknown): string | undefined {
 	return undefined;
 }
 const featuredImageUrl = getImageUrl(post.data.featured_image);
-const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+const settings = await getSiteSettingsWithCacheHint();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle } = resolveBlogSiteIdentity(settings.data);
 
 // Generate SEO meta from content
 const seo = getSeoMeta(post, {
@@ -67,11 +70,12 @@ const seo = getSeoMeta(post, {
 const bylines = post.data.bylines ?? [];
 
 // Get reading time
-const readingTime = getReadingTime(post.data.content);
+const readingTime = formatReadingTime(getReadingTime(post.data.content));
 
 // This post's tags are already hydrated onto the entry by getEmDashEntry —
 // no extra query needed.
 const tags = post.data.terms?.tag ?? [];
+const categories = post.data.terms?.category ?? [];
 
 // Fetch a few extra recent posts in case the current post is among them.
 const { entries: recentPosts, cacheHint: recentPostsCacheHint } =
@@ -99,15 +103,8 @@ const otherPostsWithTags = otherPosts.map((p) => ({
 
 const publishedAt = post.data.publishedAt ?? null;
 const publishDate = publishedAt ? formatDate(publishedAt, "long") : null;
+const recordNumber = post.data.record_number?.trim();
 
-// The script below builds the table of contents and has the final say; this
-// guess keeps the sidebar from shifting when the page loads.
-const hasHeadings = (post.data.content ?? []).some(
-	(block) =>
-		block._type === "block" &&
-		"style" in block &&
-		(block.style === "h2" || block.style === "h3"),
-);
 ---
 
 <Base
@@ -123,7 +120,7 @@ const hasHeadings = (post.data.content ?? []).some(
 	content={{ collection: "posts", id: post.data.id, slug }}
 >
 	<article class="post">
-		<header class="intro post-header">
+		<header class="band intro post-header">
 			<div class="frame">
 				<div class="post-header__inner">
 					<a href="/posts" class="arrow-link back-link">
@@ -139,21 +136,9 @@ const hasHeadings = (post.data.content ?? []).some(
 							<path d="M19 12H5"></path>
 							<path d="m12 19-7-7 7-7"></path>
 						</svg>
-						All posts
+						記録一覧
 					</a>
-					{
-						tags.length > 0 && (
-							<ul class="chips post-header__tags" aria-label="Tags">
-								{tags.map((t) => (
-									<li>
-										<a href={`/tag/${t.slug}`} class="chip">
-											{t.label}
-										</a>
-									</li>
-								))}
-							</ul>
-						)
-					}
+					{recordNumber && <p class="post-header__record-number">記録 {recordNumber}</p>}
 					<h1 class="intro__title post-header__title" {...post.edit.title}>
 						{post.data.title}
 					</h1>
@@ -165,7 +150,11 @@ const hasHeadings = (post.data.content ?? []).some(
 						)
 					}
 					<div class="post-header__meta">
-						<Byline bylines={bylines} layout="inline" max={2} size="md" />
+						{bylines.length > 0 && (
+							<div class="post-header__credit">
+								<Byline bylines={bylines} layout="inline" max={2} size="md" />
+							</div>
+						)}
 						<p class="post-header__dateline">
 							{
 								publishedAt && (
@@ -174,8 +163,15 @@ const hasHeadings = (post.data.content ?? []).some(
 									</time>
 								)
 							}
-							<span>{readingTime} min read</span>
+							<span class="post-header__reading">{readingTime}</span>
 						</p>
+						{categories.length > 0 && (
+							<ul class="chips" aria-label="分類" role="list">
+								{categories.map((term) => (
+									<li><a href={`/category/${term.slug}`} class="chip">{term.label}</a></li>
+								))}
+							</ul>
+						)}
 					</div>
 				</div>
 			</div>
@@ -185,12 +181,8 @@ const hasHeadings = (post.data.content ?? []).some(
 			post.data.featured_image && (
 				<div class="band post-hero">
 					<div class="frame">
-						<div class="post-hero__media" {...post.edit.featured_image}>
-							<Image
-								image={post.data.featured_image}
-								sizes="(min-width: 1264px) 1136px, 92vw"
-								priority
-							/>
+						<div {...post.edit.featured_image}>
+							<ArticleFigure image={post.data.featured_image} />
 						</div>
 					</div>
 				</div>
@@ -205,7 +197,7 @@ const hasHeadings = (post.data.content ?? []).some(
 							bylines.length > 0 && (
 								<div class="post-fact">
 									<dt class="eyebrow">
-										{bylines.length === 1 ? "Author" : "Authors"}
+										クレジット
 									</dt>
 									<dd>
 										<Byline bylines={bylines} layout="list" />
@@ -213,32 +205,32 @@ const hasHeadings = (post.data.content ?? []).some(
 								</div>
 							)
 						}
-						{
-							publishedAt && (
-								<div class="post-fact">
-									<dt class="eyebrow">Published</dt>
-									<dd>
-										<time datetime={publishedAt.toISOString()}>
-											{publishDate}
-										</time>
-									</dd>
-								</div>
-							)
-						}
 						<div class="post-fact">
-							<dt class="eyebrow">Reading time</dt>
-							<dd>{readingTime} min</dd>
+							<dt class="eyebrow">読了の目安</dt>
+							<dd>{readingTime}</dd>
 						</div>
 					</dl>
 				</div>
 
 				<div class="post-main">
+					<details class="toc toc--inline" data-toc hidden>
+						<summary>目次</summary>
+						<ol class="toc__list" data-toc-list role="list"></ol>
+					</details>
 					<div class="prose" data-post-content>
 						<PortableText value={post.data.content} />
 					</div>
 
+					{tags.length > 0 && (
+						<ul class="chips post-topics" aria-label="タグ" role="list">
+							{tags.map((term) => (
+								<li><a href={`/tag/${term.slug}`} class="chip">{term.label}</a></li>
+							))}
+						</ul>
+					)}
+
 					<section class="post-comments" aria-labelledby="comments-title">
-						<h2 id="comments-title" class="eyebrow">Discussion</h2>
+						<h2 id="comments-title" class="eyebrow">コメント</h2>
 						<Comments collection="posts" contentId={post.data.id} threaded />
 						<CommentForm collection="posts" contentId={post.data.id} />
 					</section>
@@ -246,17 +238,17 @@ const hasHeadings = (post.data.content ?? []).some(
 
 				<div class="post-rail">
 					<nav
-						class="toc"
+						class="toc toc--rail"
 						aria-labelledby="toc-title"
-						hidden={!hasHeadings}
+						hidden
 						data-toc
 					>
-						<h2 id="toc-title" class="eyebrow">On this page</h2>
-						<ol class="toc__list" data-toc-list></ol>
+						<h2 id="toc-title" class="eyebrow">目次</h2>
+						<ol class="toc__list" data-toc-list role="list"></ol>
 					</nav>
 
 					<aside class="post-widgets" aria-labelledby="widgets-title">
-						<h2 id="widgets-title" class="sr-only">More from the blog</h2>
+						<h2 id="widgets-title" class="sr-only">記録を探す</h2>
 						<WidgetArea name="sidebar" />
 					</aside>
 				</div>
@@ -269,11 +261,9 @@ const hasHeadings = (post.data.content ?? []).some(
 			<section class="band section" aria-labelledby="continue-reading">
 				<div class="frame related">
 					<div class="section-head">
-						<h2 id="continue-reading" class="section-head__title">
-							Continue reading
-						</h2>
+						<h2 id="continue-reading" class="section-head__title">次に読む記録</h2>
 						<a href="/posts" class="arrow-link">
-							All posts
+							記録一覧
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -307,21 +297,30 @@ const hasHeadings = (post.data.content ?? []).some(
 		// Build the table of contents from the body's h2/h3 headings
 		function buildToc() {
 			const content = document.querySelector("[data-post-content]");
-			const toc = document.querySelector<HTMLElement>("[data-toc]");
-			const list = document.querySelector("[data-toc-list]");
-			if (!content || !toc || !list) return;
+			const tocs = document.querySelectorAll<HTMLElement>("[data-toc]");
+			const lists = document.querySelectorAll("[data-toc-list]");
+			if (!content || lists.length === 0) return;
 
 			const headings = [
 				...content.querySelectorAll<HTMLHeadingElement>("h2, h3"),
 			];
-			toc.hidden = headings.length === 0;
 			if (headings.length === 0) return;
 
+			const tocHeadings = new Set<Element>(headings);
+			const usedIds = new Set(
+				Array.from(document.querySelectorAll("[id]"))
+					.filter((element) => !tocHeadings.has(element))
+					.map((element) => element.id),
+			);
 			const links = new Map<Element, HTMLAnchorElement>();
 			headings.forEach((heading, index) => {
-				if (!heading.id) {
-					heading.id = `heading-${index}`;
+				const baseId = heading.id || `heading-${index}`;
+				let id = baseId;
+				for (let suffix = 2; usedIds.has(id); suffix++) {
+					id = `${baseId}-${suffix}`;
 				}
+				usedIds.add(id);
+				heading.id = id;
 
 				const item = document.createElement("li");
 				item.className =
@@ -330,14 +329,17 @@ const hasHeadings = (post.data.content ?? []).some(
 						: "toc__item";
 
 				const link = document.createElement("a");
-				link.href = `#${heading.id}`;
+				link.href = `#${encodeURIComponent(id)}`;
 				link.className = "toc__link";
 				link.textContent = heading.textContent;
 
 				item.appendChild(link);
-				list.appendChild(item);
+				for (const list of lists) {
+					list.appendChild(list.closest(".toc--rail") ? item : item.cloneNode(true));
+				}
 				links.set(heading, link);
 			});
+			for (const toc of tocs) toc.hidden = false;
 
 			// Mark the section currently in view
 			const setCurrent = (link: HTMLAnchorElement) => {
@@ -390,13 +392,20 @@ const hasHeadings = (post.data.content ?? []).some(
 		translate: 2px 0;
 	}
 
-	.post-header__tags {
-		margin-block-end: var(--spacing-5);
+	.post-header__record-number {
+		margin-block-end: var(--spacing-2);
+		color: var(--color-muted);
+		font-family: var(--font-reading);
+		font-size: var(--font-size-sm);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.08em;
 	}
 
 	.post-header__lead {
+		font-family: var(--font-reading);
 		font-size: var(--font-size-xl);
-		line-height: var(--leading-normal);
+		line-height: 1.8;
+		line-break: strict;
 	}
 
 	.post-header__meta {
@@ -434,31 +443,6 @@ const hasHeadings = (post.data.content ?? []).some(
 		padding-block: clamp(1rem, 0.5rem + 2vw, 2rem);
 	}
 
-	.post-hero__media {
-		position: relative;
-		overflow: hidden;
-		aspect-ratio: 2 / 1;
-		border-radius: var(--radius-xl);
-		background: var(--color-fill);
-	}
-
-	.post-hero__media::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-		outline: 1px solid var(--color-media-outline);
-		outline-offset: -1px;
-		pointer-events: none;
-	}
-
-	.post-hero__media :global(img) {
-		width: 100%;
-		max-width: none;
-		height: 100%;
-		object-fit: cover;
-	}
-
 	/* Body: one reading column, widgets after the comments */
 	.post-layout {
 		display: grid;
@@ -467,7 +451,8 @@ const hasHeadings = (post.data.content ?? []).some(
 	}
 
 	.post-meta,
-	.toc {
+	.toc--rail,
+	.toc[hidden] {
 		display: none;
 	}
 
@@ -480,6 +465,10 @@ const hasHeadings = (post.data.content ?? []).some(
 
 	.post-rail {
 		overflow-wrap: anywhere;
+	}
+
+	.post-topics {
+		margin-block-start: var(--spacing-12);
 	}
 
 	/* Meta rail */
@@ -499,6 +488,21 @@ const hasHeadings = (post.data.content ?? []).some(
 	}
 
 	/* Table of contents */
+	.toc--inline {
+		margin-block-end: var(--spacing-10);
+		border-block: 1px solid var(--color-border);
+	}
+
+	.toc--inline summary {
+		padding-block: var(--spacing-3);
+		cursor: pointer;
+		font-weight: 600;
+	}
+
+	.toc--inline .toc__list {
+		margin-block-end: var(--spacing-4);
+	}
+
 	.toc h2 {
 		margin-block-end: var(--spacing-4);
 	}
@@ -537,18 +541,16 @@ const hasHeadings = (post.data.content ?? []).some(
 	}
 
 	@media (min-width: 1100px) {
-		.post-header__inner {
-			max-width: none;
-		}
-
-		.post-header__meta {
+		.post-header__credit,
+		.post-header__reading,
+		.toc--inline {
 			display: none;
 		}
 
 		.post-layout {
 			grid-template-columns:
 				minmax(9rem, var(--meta-col-width))
-				minmax(36rem, var(--content-width))
+				minmax(0, var(--content-width))
 				minmax(10rem, var(--gutter-width));
 			align-items: start;
 			justify-content: space-between;
@@ -558,7 +560,7 @@ const hasHeadings = (post.data.content ?? []).some(
 		.post-meta,
 		.post-rail {
 			position: sticky;
-			top: calc(var(--nav-height) + var(--spacing-8));
+			top: var(--spacing-8);
 		}
 
 		.post-meta {
@@ -575,20 +577,16 @@ const hasHeadings = (post.data.content ?? []).some(
 			grid-template-columns: minmax(0, 1fr);
 			gap: var(--spacing-10);
 			max-width: none;
-			max-height: calc(100vh - var(--nav-height) - var(--spacing-16));
-			max-height: calc(100dvh - var(--nav-height) - var(--spacing-16));
+			max-height: calc(100vh - var(--spacing-16));
+			max-height: calc(100dvh - var(--spacing-16));
 			margin: calc(-1 * var(--spacing-1));
 			padding: var(--spacing-1);
 			overflow-y: auto;
 			scrollbar-width: thin;
 		}
 
-		.toc {
+		.toc--rail:not([hidden]) {
 			display: block;
-		}
-
-		.toc[hidden] {
-			display: none;
 		}
 	}
 
@@ -1012,11 +1010,6 @@ const hasHeadings = (post.data.content ?? []).some(
 	@media (max-width: 720px) {
 		.post-header__lead {
 			font-size: var(--font-size-lg);
-		}
-
-		.post-hero__media {
-			aspect-ratio: 16 / 9;
-			border-radius: var(--radius-lg);
 		}
 
 		.post-widgets :global(.widget-search__input) {
