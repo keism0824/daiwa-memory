@@ -108,15 +108,15 @@ const year = new Date().getFullYear();
 ---
 
 <!doctype html>
-{/* EmDash image variants honor the root light class before the system preference. */}
-<html lang={lang} class="light">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="color-scheme" content="light" />
+		<meta name="color-scheme" content="light dark" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<Font cssVariable="--font-body" preload />
 		<Font cssVariable="--font-mono" />
 		<Font cssVariable="--font-japanese-serif" />
+		<Font cssVariable="--font-japanese-reading" />
 		<title>{fullTitle}</title>
 		<EmDashHead page={pageCtx} />
 		<link

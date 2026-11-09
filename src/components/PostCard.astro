@@ -177,6 +177,7 @@ const sizes = {
 	.post--contents .post__excerpt {
 		max-inline-size: var(--paper-measure);
 		font-family: var(--font-reading);
+		font-size: 1.0625rem;
 		line-height: 1.85;
 	}
 
@@ -186,7 +187,6 @@ const sizes = {
 	}
 
 	.post--contents .post__title {
-		font-family: var(--font-reading);
 		font-size: clamp(1.25rem, 1.1rem + 0.55vw, 1.5rem);
 	}
 
@@ -200,11 +200,6 @@ const sizes = {
 		inline-size: 100%;
 		block-size: 100%;
 		object-fit: cover;
-	}
-
-	/* The public site uses the primary image in its fixed light theme. */
-	.post--contents .post__image :global(.emdash-image--dark) {
-		display: none;
 	}
 
 	@media (min-width: 600px) {

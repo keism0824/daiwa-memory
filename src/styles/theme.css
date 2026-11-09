@@ -26,8 +26,11 @@
 */
 
 :root {
-	--font-reading: var(--font-japanese-serif, "Yu Mincho", "Hiragino Mincho ProN", serif);
-	--font-heading: var(--font-reading);
+	--font-heading: var(--font-japanese-serif, "Yu Mincho", "Hiragino Mincho ProN", serif);
+	--font-reading: var(--font-japanese-reading, var(--font-heading));
+	--font-size-reading: clamp(1.1875rem, 1.125rem + 0.2vw, 1.25rem);
+	--leading-reading: 1.95;
+	--tracking-reading: 0.01em;
 	--font-size-label: 0.8125rem;
 	--font-size-display: clamp(2rem, 1.35rem + 3vw, 3.75rem);
 	--leading-tight: 1.25;
@@ -44,19 +47,20 @@
 }
 
 :root {
-	--color-bg: #f8f6f1;
-	--color-surface: #faf6ed;
-	--color-fill: #ede5d7;
-	--color-fill-strong: #e7dccb;
-	--color-text: #2e2923;
-	--color-text-secondary: #51483e;
-	--color-muted: #5e5549;
-	--color-border: #d4c7b5;
-	--color-border-subtle: #dfd4c4;
-	--color-border-strong: #867764;
-	--color-brand: #734923;
-	--color-brand-hover: #543619;
-	--color-on-brand: #fffaf2;
+	color-scheme: light dark;
+	--color-bg: light-dark(#f3f1ed, #24221f);
+	--color-surface: light-dark(#f7f5f2, #2c2926);
+	--color-fill: light-dark(#e9e5df, #35312d);
+	--color-fill-strong: light-dark(#dfdad2, #423d37);
+	--color-text: light-dark(#2b2825, #eee9e2);
+	--color-text-secondary: light-dark(#49433d, #d0c7bd);
+	--color-muted: light-dark(#635b53, #b8ada0);
+	--color-border: light-dark(#cec7be, #504941);
+	--color-border-subtle: light-dark(#ded8d0, #403a34);
+	--color-border-strong: light-dark(#84796c, #9a8d7e);
+	--color-brand: light-dark(#704b34, #dcb091);
+	--color-brand-hover: light-dark(#513523, #f2ccb0);
+	--color-on-brand: light-dark(#f7f5f2, #24221f);
 }
 
 :where(.intro__title, .section-head__title) {
@@ -102,7 +106,7 @@ body::before,
 }
 
 :root .brand .brand__name {
-	font-family: var(--font-reading);
+	font-family: var(--font-heading);
 	letter-spacing: 0.04em;
 }
 
@@ -127,6 +131,10 @@ body::before,
 	border-block-start: 1px solid var(--color-border);
 }
 
+:root .site-footer .site-footer__widgets .widget__title {
+	font-family: var(--font-body);
+}
+
 .paper-sheet {
 	max-inline-size: var(--index-measure);
 	margin-inline: auto;
@@ -135,8 +143,9 @@ body::before,
 .paper-reading {
 	max-inline-size: var(--paper-measure);
 	font-family: var(--font-reading);
-	font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-	line-height: 1.9;
+	font-size: clamp(1.125rem, 1.0625rem + 0.25vw, 1.1875rem);
+	line-height: var(--leading-reading);
+	letter-spacing: var(--tracking-reading);
 	line-break: strict;
 	overflow-wrap: anywhere;
 }

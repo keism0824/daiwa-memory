@@ -17,7 +17,7 @@ const [{ entries: posts, cacheHint }, settings] = await Promise.all([
 ]);
 const { siteTitle, siteTagline } = resolveBlogSiteIdentity(settings.data);
 const introduction =
-	"街が生まれたころのこと。ここで営まれてきた暮らしのこと。大和に暮らす人たちの語りと、手元に残る写真から、この街の歩みを記録します。";
+	"この街が生まれたころのこと。ここで営まれてきた暮らしのこと。人々へのインタビューと、残された資料や写真から、一人ひとりの歩みを記録します。";
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(cacheHint);
@@ -80,7 +80,6 @@ const categoriesByEntry = await getTermsForEntries(
 
 	.home-intro__place {
 		margin-block-end: clamp(1.5rem, 4vw, 3rem);
-		font-family: var(--font-reading);
 		font-size: var(--font-size-sm);
 		letter-spacing: 0.11em;
 		line-height: 1.8;
@@ -92,14 +91,14 @@ const categoriesByEntry = await getTermsForEntries(
 	}
 
 	.home-intro__title {
-		font-size: clamp(2.125rem, 1.35rem + 3.6vw, 4.25rem);
+		font-size: clamp(1.6875rem, 1.0125rem + 2.7vw, 3.1875rem);
 		letter-spacing: 0.035em;
 		line-height: 1.28;
 	}
 
 	.home-intro__tagline {
 		margin-block-start: var(--spacing-4);
-		font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
+		font-size: clamp(1.125rem, 0.9rem + 0.5vw, 1.375rem);
 	}
 
 	.home-intro__note {

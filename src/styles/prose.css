@@ -28,8 +28,9 @@
 
 		max-width: var(--content-width);
 		font-family: var(--font-reading);
-		font-size: var(--font-size-lg);
-		line-height: 1.9;
+		font-size: var(--font-size-reading);
+		line-height: var(--leading-reading);
+		letter-spacing: var(--tracking-reading);
 		line-break: strict;
 		color: var(--color-text);
 		overflow-wrap: break-word;
@@ -41,7 +42,7 @@
 	}
 
 	.prose > * + * {
-		margin-block-start: 1.65em;
+		margin-block-start: 1.5em;
 	}
 
 	.prose > :is(h1, h2) {
@@ -62,6 +63,7 @@
 
 	/* Headings */
 	.prose :is(h1, h2, h3, h4, h5, h6) {
+		font-family: var(--font-heading);
 		color: var(--color-text);
 		line-height: var(--leading-snug);
 	}
@@ -189,17 +191,12 @@
 		--color-surface: var(--color-fill);
 		--color-bg-subtle: color-mix(in srgb, var(--color-fill) 50%, transparent);
 	}
-
-	@media (max-width: 640px) {
-		.prose {
-			font-size: 1.0625rem;
-		}
-	}
 }
 
 /* EmDash's image and gallery blocks set their own caption alignment. */
-.prose[data-post-content] :is(figure.emdash-image, figure.emdash-gallery-item) > figcaption {
+.prose :is(figure.emdash-image, figure.emdash-gallery-item) > figcaption {
 	margin-block-start: 0.5rem;
+	font-family: var(--font-body);
 	font-size: var(--font-size-sm);
 	line-height: 1.65;
 	text-align: start;
