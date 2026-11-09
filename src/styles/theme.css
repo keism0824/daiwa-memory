@@ -47,20 +47,19 @@
 }
 
 :root {
-	color-scheme: light dark;
-	--color-bg: light-dark(#f3f1ed, #24221f);
-	--color-surface: light-dark(#f7f5f2, #2c2926);
-	--color-fill: light-dark(#e9e5df, #35312d);
-	--color-fill-strong: light-dark(#dfdad2, #423d37);
-	--color-text: light-dark(#2b2825, #eee9e2);
-	--color-text-secondary: light-dark(#49433d, #d0c7bd);
-	--color-muted: light-dark(#635b53, #b8ada0);
-	--color-border: light-dark(#cec7be, #504941);
-	--color-border-subtle: light-dark(#ded8d0, #403a34);
-	--color-border-strong: light-dark(#84796c, #9a8d7e);
-	--color-brand: light-dark(#704b34, #dcb091);
-	--color-brand-hover: light-dark(#513523, #f2ccb0);
-	--color-on-brand: light-dark(#f7f5f2, #24221f);
+	--color-bg: #f3f1ed;
+	--color-surface: #f7f5f2;
+	--color-fill: #e9e5df;
+	--color-fill-strong: #dfdad2;
+	--color-text: #2b2825;
+	--color-text-secondary: #49433d;
+	--color-muted: #635b53;
+	--color-border: #cec7be;
+	--color-border-subtle: #ded8d0;
+	--color-border-strong: #84796c;
+	--color-brand: #704b34;
+	--color-brand-hover: #513523;
+	--color-on-brand: #f7f5f2;
 }
 
 :where(.intro__title, .section-head__title) {
