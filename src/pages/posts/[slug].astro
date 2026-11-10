@@ -138,11 +138,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		<header class="band post-header">
 			<div class="frame">
 				<div class="post-header__inner">
-					{recordNumber && <p class="post-header__record-number">{recordNumber}</p>}
 					{post.data.excerpt && (
 						<p class="post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
 					)}
-					<h1 class="record-list-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
+					<div class="post-header__title-row">
+						{recordNumber && <p class="record-list-title post-header__record-number">{recordNumber}</p>}
+						<h1 class="record-list-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
+					</div>
 					<dl class="post-header__credits">
 						{posterName && (
 							<div class="post-header__credit">
@@ -348,14 +350,15 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__record-number {
-		margin-block-end: var(--spacing-2);
+		flex: none;
+		max-inline-size: 45%;
 		color: var(--color-muted);
-		font-size: var(--font-size-sm);
-		letter-spacing: 0.08em;
+		font-family: var(--font-heading);
+		line-height: var(--leading-tight);
+		overflow-wrap: anywhere;
 	}
 
 	.post-header__lead {
-		max-inline-size: 34rem;
 		font-family: var(--font-reading);
 		font-size: var(--font-size-xl);
 		line-height: 1.8;
@@ -363,8 +366,15 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		overflow-wrap: anywhere;
 	}
 
-	.post-header__title {
+	.post-header__title-row {
+		display: flex;
+		align-items: baseline;
+		gap: clamp(0.625rem, 1.5vw, 1.25rem);
 		margin-block-start: var(--spacing-4);
+	}
+
+	.post-header__title {
+		min-inline-size: 0;
 	}
 
 	.post-header__credits {
@@ -492,10 +502,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	@media (min-width: 960px) {
 		.post {
 			--content-width: var(--desktop-reading-width);
-		}
-
-		.post-header__lead {
-			max-inline-size: 42rem;
 		}
 	}
 
