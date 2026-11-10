@@ -964,9 +964,35 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 			font-size: var(--font-size-lg);
 		}
 
+		.post-header__title-row {
+			flex-direction: column;
+			align-items: stretch;
+			gap: var(--spacing-1);
+		}
+
+		.post-header__record-number {
+			max-inline-size: none;
+		}
+
+		.post-header__title {
+			letter-spacing: var(--tracking-snug);
+		}
+
+		.post-header__title,
+		.prose[data-post-content] :global(:is(h1, h2, h3, h4, h5, h6)) {
+			text-wrap: wrap;
+		}
+
 		.prose[data-post-content] {
 			--font-size-reading: 1.125rem;
 			--leading-reading: 1.85;
+		}
+
+		.post-header__lead:lang(ja),
+		.prose[data-post-content] > :global(p:lang(ja):not(.has-text-align-center, .has-text-align-right, .has-text-align-justify)) {
+			text-align: justify;
+			text-justify: inter-character;
+			text-align-last: start;
 		}
 
 		.prose[data-post-content] > :global(p + p) {
