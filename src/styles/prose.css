@@ -193,6 +193,37 @@
 	}
 }
 
+@media (max-width: 720px) {
+	.reading-frame {
+		--frame-padding: clamp(0.625rem, 2vw, 1rem);
+	}
+
+	.record-list-title.reading-title {
+		letter-spacing: var(--tracking-snug);
+	}
+
+	.reading-title,
+	.prose :is(h1, h2, h3, h4, h5, h6) {
+		text-wrap: wrap;
+	}
+
+	.prose {
+		--font-size-reading: 1.125rem;
+		--leading-reading: 1.85;
+	}
+
+	.reading-lead:lang(ja),
+	.prose > p:lang(ja):not(.has-text-align-center, .has-text-align-right, .has-text-align-justify) {
+		text-align: justify;
+		text-justify: inter-character;
+		text-align-last: start;
+	}
+
+	.prose > p + p {
+		margin-block-start: 1.25em;
+	}
+}
+
 /* EmDash's image and gallery blocks set their own caption alignment. */
 .prose :is(figure.emdash-image, figure.emdash-gallery-item) > figcaption {
 	margin-block-start: 0.5rem;

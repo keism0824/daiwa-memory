@@ -136,14 +136,14 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 >
 	<article class="post">
 		<header class="band post-header">
-			<div class="frame post-layout">
+			<div class="frame reading-frame post-layout">
 				<div class="post-main post-header__inner">
 					{post.data.excerpt && (
-						<p class="post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
+						<p class="reading-lead post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
 					)}
 					<div class="post-header__title-row">
 						{recordNumber && <p class="record-list-title post-header__record-number">{recordNumber}</p>}
-						<h1 class="record-list-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
+						<h1 class="record-list-title reading-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
 					</div>
 					<dl class="post-header__credits">
 						{posterName && (
@@ -186,7 +186,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		</header>
 
 		<div class="band post-body">
-			<div class="frame post-layout">
+			<div class="frame reading-frame post-layout">
 				<div class="post-main">
 					<details class="toc toc--inline" data-toc open hidden>
 						<summary>目次</summary>
@@ -955,11 +955,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	@media (max-width: 720px) {
-		.post-header > .frame,
-		.post-body > .frame {
-			--frame-padding: clamp(0.625rem, 2vw, 1rem);
-		}
-
 		.post-header__lead {
 			font-size: var(--font-size-lg);
 		}
@@ -972,31 +967,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 		.post-header__record-number {
 			max-inline-size: none;
-		}
-
-		.post-header__title {
-			letter-spacing: var(--tracking-snug);
-		}
-
-		.post-header__title,
-		.prose[data-post-content] :global(:is(h1, h2, h3, h4, h5, h6)) {
-			text-wrap: wrap;
-		}
-
-		.prose[data-post-content] {
-			--font-size-reading: 1.125rem;
-			--leading-reading: 1.85;
-		}
-
-		.post-header__lead:lang(ja),
-		.prose[data-post-content] > :global(p:lang(ja):not(.has-text-align-center, .has-text-align-right, .has-text-align-justify)) {
-			text-align: justify;
-			text-justify: inter-character;
-			text-align-last: start;
-		}
-
-		.prose[data-post-content] > :global(p + p) {
-			margin-block-start: 1.25em;
 		}
 
 		.post-widgets :global(.widget-search__input) {
