@@ -136,8 +136,8 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 >
 	<article class="post">
 		<header class="band post-header">
-			<div class="frame">
-				<div class="post-header__inner">
+			<div class="frame post-layout">
+				<div class="post-main post-header__inner">
 					{post.data.excerpt && (
 						<p class="post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
 					)}
@@ -344,8 +344,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__inner {
-		max-inline-size: var(--content-width);
-		margin-inline: auto;
 		text-align: start;
 	}
 
@@ -375,6 +373,21 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 	.post-header__title {
 		min-inline-size: 0;
+	}
+
+	@media (min-width: 1200px) {
+		.post-header__title-row {
+			position: relative;
+		}
+
+		.post-header__record-number {
+			position: absolute;
+			inset-block-start: 0;
+			inset-inline-end: calc(100% + var(--spacing-3));
+			inline-size: max-content;
+			max-inline-size: min(9vw, 8rem);
+			text-align: end;
+		}
 	}
 
 	.post-header__credits {
