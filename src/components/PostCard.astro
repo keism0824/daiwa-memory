@@ -35,22 +35,19 @@ const publishedAt = post.data.publishedAt ?? null;
 const isContents = variant === "contents";
 const bylines = isContents ? [] : post.data.bylines ?? [];
 const recordNumber = isContents ? post.data.record_number?.trim() : undefined;
-const hasCategoryRail = isContents && categories.length > 0;
 const image = variant === "card" ? post.data.featured_image : undefined;
 const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 ---
 
-<article class:list={["post", `post--${variant}`, { "post--with-category": hasCategoryRail }]}>
-	{hasCategoryRail && (
-		<ul class="post__category-rail" aria-label="分類" role="list">
-			{categories.map((term) => (
-				<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
-			))}
-		</ul>
+<article class:list={["post", `post--${variant}`, { "post--with-record-number": recordNumber }]}>
+	{recordNumber && (
+		<p class="post__record-number">
+			<span class="sr-only">記録番号 </span>
+			<span class="post__record-number-value">{recordNumber}</span>
+		</p>
 	)}
-	{(publishedAt || recordNumber || (!isContents && categories.length > 0) || variant === "card") && (
+	{(publishedAt || variant === "card") && (
 		<div class="post__meta">
-			{recordNumber && <span class="post__record-number">記録 {recordNumber}</span>}
 			{publishedAt && (
 				<time datetime={publishedAt.toISOString()}>{formatDate(publishedAt, isContents ? "long" : "short")}</time>
 			)}
@@ -84,6 +81,13 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
 				)}
 			</>
+		)}
+		{isContents && categories.length > 0 && (
+			<ul class="post__terms" aria-label="分類" role="list">
+				{categories.map((term) => (
+					<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
+				))}
+			</ul>
 		)}
 		{(bylines.length > 0 || visibleTags.length > 0) && (
 			<div class="post__footer">
@@ -198,45 +202,27 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		row-gap: var(--spacing-2);
 	}
 
-	.post--with-category {
+	.post--with-record-number {
 		grid-template-columns: auto minmax(0, 1fr);
 		grid-template-rows: auto 1fr;
 		column-gap: clamp(0.5rem, 1.2vw, 0.875rem);
 	}
 
-	.post__category-rail {
+	.post__record-number {
 		grid-column: 1;
 		grid-row: 1 / span 2;
-		display: grid;
-		gap: var(--spacing-3);
-		list-style: none;
 		padding-inline-end: var(--spacing-2);
 		border-inline-end: 1px solid var(--color-border);
+		color: var(--color-muted);
 		font-size: var(--font-size-label);
 	}
 
-	.post__category-rail a {
+	.post__record-number-value {
 		display: block;
 		writing-mode: vertical-rl;
-		letter-spacing: 0.12em;
-		color: var(--color-muted);
-		text-decoration-color: transparent;
-		text-underline-offset: 0.2em;
-	}
-
-	.post__category-rail a:hover,
-	.post__category-rail a:focus-visible {
-		color: var(--color-brand);
-		text-decoration-color: currentColor;
-	}
-
-	.post__record-number {
+		text-orientation: upright;
+		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
-	}
-
-	.post__record-number + time {
-		border-inline-start: 1px solid var(--color-border);
-		padding-inline-start: var(--spacing-4);
 	}
 
 	.post--contents .post__title {
@@ -253,5 +239,4 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		-webkit-line-clamp: 2;
 		overflow: hidden;
 	}
-
 </style>

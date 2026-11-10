@@ -10,14 +10,14 @@ const { image } = Astro.props;
 ---
 
 <figure class="article-figure">
-	<Image image={image} sizes="(min-width: 780px) 720px, 90vw" priority />
+	<Image image={image} sizes="(min-width: 780px) 576px, 72vw" priority />
 	{image.caption?.trim() && <figcaption>{image.caption}</figcaption>}
 </figure>
 
 <style>
 	.article-figure {
 		inline-size: fit-content;
-		max-inline-size: min(100%, 45rem);
+		max-inline-size: min(80%, 36rem);
 		margin-inline: auto;
 	}
 
@@ -25,7 +25,7 @@ const { image } = Astro.props;
 		display: block;
 		margin-inline: auto;
 		max-inline-size: 100%;
-		max-block-size: 42rem;
+		max-block-size: 33.6rem;
 		inline-size: auto;
 		block-size: auto;
 	}
