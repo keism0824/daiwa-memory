@@ -1,0 +1,107 @@
+---
+import type { ContentEntry, InferCollectionData, getTermsForEntries } from "emdash";
+import Base from "../layouts/Base.astro";
+import Pagination from "./Pagination.astro";
+import PostCard from "./PostCard.astro";
+
+interface Props {
+	title: string;
+	pageTitle?: string;
+	description: string;
+	label: string;
+	note: string;
+	emptyMessage: string;
+	posts: ContentEntry<InferCollectionData<"posts">>[];
+	categoriesByEntry: Awaited<ReturnType<typeof getTermsForEntries>>;
+	basePath: string;
+	cursor?: string;
+	nextCursor?: string;
+}
+
+const {
+	title, pageTitle = title, description, label, note, emptyMessage,
+	posts, categoriesByEntry, basePath, cursor, nextCursor,
+} = Astro.props;
+---
+
+<Base title={pageTitle} description={description}>
+	<header class="band">
+		<div class="frame">
+			<div class="paper-sheet archive-heading">
+				<p class="archive-heading__label">{label}</p>
+				<h1 class="record-list-title">{title}</h1>
+				<p class="paper-reading archive-heading__note">{note}</p>
+				{Astro.slots.has("navigation") && (
+					<div class="archive-heading__navigation">
+						<slot name="navigation" />
+					</div>
+				)}
+			</div>
+		</div>
+	</header>
+
+	<div class="band archive-band">
+		<div class="frame">
+			<div class="paper-sheet">
+				{posts.length > 0 ? (
+					<>
+						<ol class="archive-list" role="list">
+							{posts.map((post) => (
+								<li>
+									<PostCard
+										post={post}
+										categories={categoriesByEntry.get(post.data.id)}
+										variant="contents"
+									/>
+								</li>
+							))}
+						</ol>
+						<Pagination {basePath} {cursor} {nextCursor} />
+					</>
+				) : (
+					<div class="archive-empty">
+						<h2>{cursor ? "これ以降の記録はありません" : "記録はまだありません"}</h2>
+						<p class="paper-reading">{cursor ? "一覧の最後まで表示しました。" : emptyMessage}</p>
+						{cursor && <a href={basePath} class="paper-link">最初のページへ</a>}
+					</div>
+				)}
+			</div>
+		</div>
+	</div>
+</Base>
+
+<style>
+	.archive-heading {
+		padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4.5rem);
+	}
+
+	.archive-heading__label {
+		margin-block-end: var(--spacing-4);
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+		letter-spacing: 0.16em;
+	}
+
+	.archive-heading__note {
+		margin-block-start: var(--spacing-4);
+		color: var(--color-text-secondary);
+	}
+
+	.archive-heading__navigation {
+		margin-block-start: var(--spacing-8);
+	}
+
+	.archive-band {
+		padding-block-end: clamp(4rem, 8vw, 7rem);
+	}
+
+	.archive-empty {
+		display: grid;
+		justify-items: start;
+		gap: var(--spacing-2);
+	}
+
+	.archive-empty h2 {
+		font-size: var(--font-size-xl);
+	}
+</style>

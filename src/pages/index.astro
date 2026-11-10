@@ -11,7 +11,7 @@ import { resolveBlogSiteIdentity } from "../utils/site-identity";
 const [{ entries: posts, cacheHint }, settings] = await Promise.all([
 	getEmDashCollection("posts", {
 		orderBy: { published_at: "desc" },
-		limit: 7,
+		limit: 5,
 	}),
 	getSiteSettingsWithCacheHint(),
 ]);
@@ -50,7 +50,7 @@ const categoriesByEntry = await getTermsForEntries(
 	<section class="band home-section" aria-labelledby="latest-posts">
 		<div class="frame">
 			<div class="paper-sheet home-section__sheet">
-				<h2 id="latest-posts" class="home-contents__heading">最新の記録</h2>
+				<h2 id="latest-posts" class="record-list-title home-contents__heading">記録</h2>
 				{posts.length > 0 ? (
 					<ol class="archive-list" role="list">
 						{posts.map((post) => (
@@ -116,9 +116,7 @@ const categoriesByEntry = await getTermsForEntries(
 	}
 
 	.home-contents__heading {
-		margin-block-end: var(--spacing-6);
-		font-size: var(--font-size-2xl);
-		letter-spacing: 0.15em;
+		margin-block-end: clamp(2rem, 1.75rem + 1vw, 2.5rem);
 	}
 
 	.home-contents__empty {

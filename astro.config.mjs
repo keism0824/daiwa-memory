@@ -11,6 +11,16 @@ export default defineConfig({
 		layout: "constrained",
 		responsiveStyles: true,
 	},
+	vite: {
+		environments: {
+			ssr: {
+				optimizeDeps: {
+					// Prebundle the image route before the first local thumbnail request.
+					include: ["@astrojs/cloudflare/image-transform-endpoint"],
+				},
+			},
+		},
+	},
 	integrations: [
 		react(),
 		emdash({

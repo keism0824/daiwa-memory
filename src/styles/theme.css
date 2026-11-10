@@ -159,6 +159,12 @@ body::before,
 	color: var(--color-brand-hover);
 }
 
+.record-list-title {
+	font-size: var(--font-size-2xl);
+	font-weight: var(--font-weight-heading);
+	letter-spacing: 0.15em;
+}
+
 .archive-list {
 	display: grid;
 	gap: clamp(1.75rem, 3vw, 2.5rem);

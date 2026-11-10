@@ -14,7 +14,7 @@ interface Props {
 	post: ContentEntry<InferCollectionData<"posts">>;
 	tags?: Term[];
 	categories?: Term[];
-	variant?: "card" | "contents" | "row";
+	variant?: "card" | "contents";
 	headingLevel?: 2 | 3;
 	priority?: boolean;
 }
@@ -32,23 +32,29 @@ const Heading = `h${headingLevel}` as const;
 const href = `/posts/${post.id}`;
 const title = post.data.title || "無題の記録";
 const publishedAt = post.data.publishedAt ?? null;
-const bylines = post.data.bylines ?? [];
-const image = variant === "row" ? undefined : post.data.featured_image;
+const isContents = variant === "contents";
+const bylines = isContents ? [] : post.data.bylines ?? [];
+const recordNumber = isContents ? post.data.record_number?.trim() : undefined;
+const hasCategoryRail = isContents && categories.length > 0;
+const image = variant === "card" ? post.data.featured_image : undefined;
 const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
-
-const sizes = {
-	card: "(min-width: 1080px) 360px, (min-width: 700px) 45vw, 90vw",
-	contents: "(min-width: 600px) 10rem, 8.5rem",
-};
 ---
 
-<article class:list={["post", `post--${variant}`, { "post--with-image": image }]}>
-	{(publishedAt || categories.length > 0 || variant === "card") && (
+<article class:list={["post", `post--${variant}`, { "post--with-category": hasCategoryRail }]}>
+	{hasCategoryRail && (
+		<ul class="post__category-rail" aria-label="分類" role="list">
+			{categories.map((term) => (
+				<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
+			))}
+		</ul>
+	)}
+	{(publishedAt || recordNumber || (!isContents && categories.length > 0) || variant === "card") && (
 		<div class="post__meta">
+			{recordNumber && <span class="post__record-number">記録 {recordNumber}</span>}
 			{publishedAt && (
-				<time datetime={publishedAt.toISOString()}>{formatDate(publishedAt, "short")}</time>
+				<time datetime={publishedAt.toISOString()}>{formatDate(publishedAt, isContents ? "long" : "short")}</time>
 			)}
-			{categories.length > 0 ? (
+			{!isContents && categories.length > 0 ? (
 				<ul class="post__terms" aria-label="分類" role="list">
 					{categories.map((term) => (
 						<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
@@ -60,11 +66,24 @@ const sizes = {
 		</div>
 	)}
 	<div class="post__body">
-		<Heading class="post__title" {...post.edit.title}>
-			<a href={href}>{title}</a>
-		</Heading>
-		{post.data.excerpt && (
-			<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+		{isContents ? (
+			<a class="post__summary" href={href} aria-labelledby={`record-title-${post.data.id}`}>
+				<Heading id={`record-title-${post.data.id}`} class="post__title" {...post.edit.title}>
+					{title}
+				</Heading>
+				{post.data.excerpt && (
+					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+				)}
+			</a>
+		) : (
+			<>
+				<Heading class="post__title" {...post.edit.title}>
+					<a href={href}>{title}</a>
+				</Heading>
+				{post.data.excerpt && (
+					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+				)}
+			</>
 		)}
 		{(bylines.length > 0 || visibleTags.length > 0) && (
 			<div class="post__footer">
@@ -79,9 +98,9 @@ const sizes = {
 			</div>
 		)}
 	</div>
-	{variant !== "row" && image && (
+	{image && (
 		<div class="post__image" {...post.edit.featured_image}>
-			<Image image={image} sizes={sizes[variant]} priority={priority} />
+			<Image image={image} sizes="(min-width: 1080px) 360px, (min-width: 700px) 45vw, 90vw" priority={priority} />
 		</div>
 	)}
 </article>
@@ -141,9 +160,19 @@ const sizes = {
 	}
 
 	.post__title a:hover,
-	.post__title a:focus-visible {
+	.post__title a:focus-visible,
+	.post__summary:hover .post__title,
+	.post__summary:focus-visible .post__title {
 		color: var(--color-brand);
-		text-decoration-color: currentColor;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+
+	.post__summary {
+		display: grid;
+		gap: var(--spacing-3);
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.post__excerpt {
@@ -165,72 +194,64 @@ const sizes = {
 		border-block-start: 1px solid var(--color-border);
 	}
 
-	.post--row {
+	.post--contents {
 		row-gap: var(--spacing-2);
 	}
 
-	.post--row .post__body {
-		gap: var(--spacing-2);
+	.post--with-category {
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-rows: auto 1fr;
+		column-gap: clamp(0.5rem, 1.2vw, 0.875rem);
 	}
 
-	.post--row .post__excerpt,
+	.post__category-rail {
+		grid-column: 1;
+		grid-row: 1 / span 2;
+		display: grid;
+		gap: var(--spacing-3);
+		list-style: none;
+		padding-inline-end: var(--spacing-2);
+		border-inline-end: 1px solid var(--color-border);
+		font-size: var(--font-size-label);
+	}
+
+	.post__category-rail a {
+		display: block;
+		writing-mode: vertical-rl;
+		letter-spacing: 0.12em;
+		color: var(--color-muted);
+		text-decoration-color: transparent;
+		text-underline-offset: 0.2em;
+	}
+
+	.post__category-rail a:hover,
+	.post__category-rail a:focus-visible {
+		color: var(--color-brand);
+		text-decoration-color: currentColor;
+	}
+
+	.post__record-number {
+		white-space: nowrap;
+	}
+
+	.post__record-number + time {
+		border-inline-start: 1px solid var(--color-border);
+		padding-inline-start: var(--spacing-4);
+	}
+
+	.post--contents .post__title {
+		font-size: clamp(1.375rem, 1.175rem + 0.8vw, 1.75rem);
+	}
+
 	.post--contents .post__excerpt {
 		max-inline-size: var(--paper-measure);
 		font-family: var(--font-reading);
 		font-size: 1.0625rem;
 		line-height: 1.85;
-	}
-
-	.post--contents,
-	.post--contents .post__body {
-		gap: var(--spacing-2);
-	}
-
-	.post--contents .post__title {
-		font-size: clamp(1.25rem, 1.1rem + 0.55vw, 1.5rem);
-	}
-
-	.post--contents .post__image {
-		inline-size: min(100%, 8.5rem);
-		aspect-ratio: 4 / 3;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
 		overflow: hidden;
 	}
 
-	.post--contents .post__image :global(img) {
-		inline-size: 100%;
-		block-size: 100%;
-		object-fit: cover;
-	}
-
-	@media (min-width: 600px) {
-		.post--contents.post--with-image {
-			grid-template-columns: minmax(0, 1fr) 10rem;
-			column-gap: clamp(1.25rem, 4vw, 3rem);
-			align-content: start;
-			grid-template-rows: auto 1fr;
-		}
-
-		.post--contents .post__image {
-			grid-column: 2;
-			grid-row: 1 / span 2;
-			inline-size: 100%;
-		}
-	}
-
-	@media (min-width: 720px) {
-		.post--row {
-			grid-template-columns: 8.5rem minmax(0, 1fr);
-			column-gap: clamp(1.25rem, 4vw, 3rem);
-		}
-
-		.post--row .post__meta {
-			flex-direction: column;
-			align-items: start;
-			padding-block-start: 0.35em;
-		}
-
-		.post--row .post__body {
-			grid-column: 2;
-		}
-	}
 </style>
