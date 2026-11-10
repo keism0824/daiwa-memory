@@ -18,12 +18,10 @@ const { image } = Astro.props;
 	.article-figure {
 		inline-size: fit-content;
 		max-inline-size: min(80%, 36rem);
-		margin-inline: auto;
 	}
 
 	.article-figure :global(img) {
 		display: block;
-		margin-inline: auto;
 		max-inline-size: 100%;
 		max-block-size: 33.6rem;
 		inline-size: auto;
@@ -38,5 +36,11 @@ const { image } = Astro.props;
 		line-height: 1.65;
 		overflow-wrap: anywhere;
 		white-space: pre-line;
+	}
+
+	@media (min-width: 780px) {
+		.article-figure {
+			max-inline-size: min(100%, 36rem);
+		}
 	}
 </style>
