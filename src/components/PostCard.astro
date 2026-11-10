@@ -3,6 +3,7 @@ import type { ContentEntry, InferCollectionData } from "emdash";
 import { Image } from "emdash/ui";
 import Byline from "./Byline.astro";
 import { formatDate } from "../utils/locale";
+import { formatRecordNumber } from "../utils/record-number";
 import { formatReadingTime, getReadingTime } from "../utils/reading-time";
 
 interface Term {
@@ -34,7 +35,7 @@ const title = post.data.title || "無題の記録";
 const publishedAt = post.data.publishedAt ?? null;
 const isContents = variant === "contents";
 const bylines = isContents ? [] : post.data.bylines ?? [];
-const recordNumber = isContents ? post.data.record_number?.trim() : undefined;
+const recordNumber = isContents ? formatRecordNumber(post.data.record_number) : undefined;
 const image = variant === "card" ? post.data.featured_image : undefined;
 const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 ---
@@ -42,7 +43,6 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 <article class:list={["post", `post--${variant}`, { "post--with-record-number": recordNumber }]}>
 	{recordNumber && (
 		<p class="post__record-number">
-			<span class="sr-only">記録番号 </span>
 			<span class="post__record-number-value">{recordNumber}</span>
 		</p>
 	)}
@@ -220,8 +220,6 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 	.post__record-number-value {
 		display: block;
 		writing-mode: vertical-rl;
-		text-orientation: upright;
-		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
 	}
 
