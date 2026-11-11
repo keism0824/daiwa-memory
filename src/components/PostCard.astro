@@ -244,4 +244,28 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		font-size: 1.0625rem;
 		line-height: 1.85;
 	}
+
+	@media (max-width: 720px) {
+		.post--with-record-number {
+			column-gap: var(--spacing-4);
+		}
+
+		.post__record-number {
+			padding-inline-end: 0;
+			border-inline-end: 0;
+		}
+
+		.post__meta:has(time + .post__terms) {
+			display: flex;
+		}
+
+		.post__meta time {
+			white-space: nowrap;
+		}
+
+		.post__meta time + .post__terms {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+		}
+	}
 </style>
