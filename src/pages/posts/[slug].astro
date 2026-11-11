@@ -185,18 +185,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 									<dd>{interviewer}</dd>
 								</div>
 							)}
-							{writerNames && (
-								<div class="post-header__credit">
-									<dt>執筆者</dt>
-									<dd>{writerNames}</dd>
-								</div>
-							)}
-							{posterName && (
-								<div class="post-header__credit">
-									<dt>投稿者</dt>
-									<dd>{posterName}</dd>
-								</div>
-							)}
 							{interviewee && (
 								<div class="post-header__credit">
 									<dt>取材対象者</dt>
@@ -213,6 +201,18 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 								<div class="post-header__credit">
 									<dt>取材方法</dt>
 									<dd>{interviewMethod}</dd>
+								</div>
+							)}
+							{writerNames && (
+								<div class="post-header__credit">
+									<dt>執筆者</dt>
+									<dd>{writerNames}</dd>
+								</div>
+							)}
+							{posterName && (
+								<div class="post-header__credit">
+									<dt>投稿者</dt>
+									<dd>{posterName}</dd>
 								</div>
 							)}
 							{publishedAt && (
@@ -787,9 +787,10 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 		.post-header__inner .post-header__credits {
 			position: relative;
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-			column-gap: var(--spacing-6);
-			max-inline-size: none;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: clamp(1.5rem, 4vw, 3rem);
+			max-inline-size: 42rem;
+			margin-inline: auto;
 			border-block-color: transparent;
 		}
 
@@ -797,8 +798,9 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		.post-header__inner .post-header__credits::after {
 			content: "";
 			position: absolute;
-			inset-inline-start: 0;
+			inset-inline: 0;
 			inline-size: min(100%, var(--credit-rule-width));
+			margin-inline: auto;
 			border-block-start: 1px solid var(--color-border);
 		}
 
