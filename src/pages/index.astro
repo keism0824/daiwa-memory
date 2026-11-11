@@ -39,7 +39,11 @@ const categoriesByEntry = await getTermsForEntries(
 					兵庫県川西市 大和地区
 					<span>旧阪急北ネオポリス</span>
 				</p>
-				<h1 class="intro__title home-intro__title site-title-text">{siteTitle}</h1>
+				<h1 class="intro__title home-intro__title site-title-text">
+					{siteTitle.startsWith("大和") ? (
+						<><ruby>大和<rt>だいわ</rt></ruby>{siteTitle.slice(2)}</>
+					) : siteTitle}
+				</h1>
 				{siteTagline && <p class="paper-reading home-intro__tagline">{siteTagline}</p>}
 				<p class="paper-reading home-intro__note">{introduction}</p>
 				<a class="paper-link" href="/pages/about">この記録集について</a>
@@ -94,6 +98,11 @@ const categoriesByEntry = await getTermsForEntries(
 		font-size: clamp(1.6875rem, 1.0125rem + 2.7vw, 3.1875rem);
 		letter-spacing: 0.035em;
 		line-height: 1.28;
+	}
+
+	.home-intro__title rt {
+		font-size: 0.4em;
+		letter-spacing: normal;
 	}
 
 	@media (max-width: 720px) {
