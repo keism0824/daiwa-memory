@@ -27,7 +27,7 @@
 		--emdash-file-icon-color: var(--color-muted);
 
 		max-width: var(--content-width);
-		font-family: "UD Digi Kyokasho N-R", "UD デジタル 教科書体 N-R", var(--font-reading);
+		font-family: var(--font-heading);
 		font-size: var(--font-size-reading);
 		line-height: var(--leading-reading);
 		letter-spacing: var(--tracking-reading);
