@@ -3,13 +3,16 @@ import type { ContentEntry, InferCollectionData, getTermsForEntries } from "emda
 import Base from "../layouts/Base.astro";
 import Pagination from "./Pagination.astro";
 import PostCard from "./PostCard.astro";
+import "../styles/prose.css";
+import "../styles/reading-page.css";
 
 interface Props {
 	title: string;
 	pageTitle?: string;
 	description: string;
-	label: string;
-	note: string;
+	label?: string;
+	note?: string;
+	readingLayout?: boolean;
 	emptyMessage: string;
 	posts: ContentEntry<InferCollectionData<"posts">>[];
 	categoriesByEntry: Awaited<ReturnType<typeof getTermsForEntries>>;
@@ -19,18 +22,18 @@ interface Props {
 }
 
 const {
-	title, pageTitle = title, description, label, note, emptyMessage,
+	title, pageTitle = title, description, label, note, emptyMessage, readingLayout = false,
 	posts, categoriesByEntry, basePath, cursor, nextCursor,
 } = Astro.props;
 ---
 
 <Base title={pageTitle} description={description}>
-	<header class="band">
+	{!readingLayout && <header class="band">
 		<div class="frame">
 			<div class="paper-sheet archive-heading">
-				<p class="archive-heading__label">{label}</p>
+				{label && <p class="archive-heading__label">{label}</p>}
 				<h1 class="record-list-title">{title}</h1>
-				<p class="paper-reading archive-heading__note">{note}</p>
+				{note && <p class="paper-reading archive-heading__note">{note}</p>}
 				{Astro.slots.has("navigation") && (
 					<div class="archive-heading__navigation">
 						<slot name="navigation" />
@@ -38,11 +41,21 @@ const {
 				)}
 			</div>
 		</div>
-	</header>
+	</header>}
 
-	<div class="band archive-band">
-		<div class="frame">
-			<div class="paper-sheet">
+	<div class:list={["band", readingLayout ? "reading-page" : "archive-band"]}>
+		<div class:list={["frame", { "reading-frame reading-page__layout": readingLayout }]}>
+			{readingLayout && (
+				<header class="reading-page__header">
+					<h1 class="record-list-title reading-title reading-page__title">{title}</h1>
+				</header>
+			)}
+			<div class={readingLayout ? "archive-reading-body" : "paper-sheet"}>
+				{readingLayout && Astro.slots.has("navigation") && (
+					<div class="archive-reading-navigation">
+						<slot name="navigation" />
+					</div>
+				)}
 				{posts.length > 0 ? (
 					<>
 						<ol class="archive-list" role="list">
@@ -93,6 +106,14 @@ const {
 
 	.archive-band {
 		padding-block-end: clamp(4rem, 8vw, 7rem);
+	}
+
+	.archive-reading-body {
+		min-inline-size: 0;
+	}
+
+	.archive-reading-navigation {
+		margin-block-end: var(--spacing-8);
 	}
 
 	.archive-empty {

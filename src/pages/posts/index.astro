@@ -32,8 +32,7 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 <RecordArchive
 	title="記録一覧"
 	description="大和地区の記録を公開日順に掲載しています。"
-	label="大和地区"
-	note="開発のころの記憶から、今日の暮らしまで。大和地区の記録を公開日の新しい順に並べています。"
+	readingLayout
 	emptyMessage="公開された記録は、こちらに掲載します。"
 	{posts}
 	{categoriesByEntry}
@@ -85,5 +84,15 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 		color: var(--color-text-secondary);
 		overflow-wrap: anywhere;
 		white-space: pre-line;
+	}
+
+	@media (max-width: 720px) {
+		.archive-categories__label {
+			font-size: var(--font-size-xs);
+		}
+
+		.archive-categories h2 {
+			font-size: var(--font-size-xl);
+		}
 	}
 </style>
