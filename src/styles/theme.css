@@ -175,3 +175,20 @@ body::before,
 	gap: clamp(1.75rem, 3vw, 2.5rem);
 	list-style: none;
 }
+
+/* Keep the brand and navigation readable before the phone layout takes over. */
+@media (min-width: 641px) and (max-width: 900px) {
+	:root .site-header .site-search {
+		display: none;
+	}
+
+	:root .site-header .site-search-link {
+		display: inline-grid;
+		width: 2.5rem;
+		height: 2.5rem;
+	}
+
+	:root .site-header .brand {
+		flex-shrink: 0;
+	}
+}

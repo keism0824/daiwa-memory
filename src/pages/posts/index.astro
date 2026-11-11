@@ -5,6 +5,7 @@ import {
 	getTermsForEntries,
 } from "emdash";
 import RecordArchive from "../../components/RecordArchive.astro";
+import { flattenTerms } from "../../utils/taxonomy";
 
 // Sort in the database rather than in JS — lets the DB use its index on
 // published_at and avoids a full-table scan on the client.
@@ -45,7 +46,7 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 			<p class="archive-categories__label">記録の索引</p>
 			<h2 id="archive-categories-title">テーマからたどる</h2>
 			<ul role="list">
-				{categoryResult.data.map((term) => (
+				{flattenTerms(categoryResult.data).map((term) => (
 					<li>
 						<h3><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></h3>
 						{term.description?.trim() && <p class="paper-reading">{term.description}</p>}

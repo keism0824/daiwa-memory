@@ -53,6 +53,12 @@ Open http://localhost:4321/_emdash/admin and complete the setup wizard. EmDash r
 
 ## Deploying
 
+Local development responses include `X-Robots-Tag: noindex`. Production builds
+leave indexing to EmDash's SEO settings. For a staging build, set
+`SITE_NOINDEX=true` when running the build (for example in the build environment
+or `.env.production`). This flag is evaluated at build time; changing it requires
+a new build. Existing EmDash robots directives are preserved.
+
 ```bash
 pnpm wrangler login
 pnpm deploy

@@ -1,18 +1,26 @@
 ---
 export const prerender = false;
 
-import { search } from "emdash";
+import { InvalidCursorError, search } from "emdash";
 import Base from "../layouts/Base.astro";
+import Pagination from "../components/Pagination.astro";
 
 const query = Astro.url.searchParams.get("q")?.trim() || "";
+const cursor = Astro.url.searchParams.get("cursor") || undefined;
+const basePath = `/search?${new URLSearchParams({ q: query })}`;
 
 // Use the FTS-backed search() API instead of loading every post and
 // filtering in JS. FTS scales as the post count grows, returns ranked
 // results, and handles tokenization/stemming. Templates that grep all
 // post bodies in JS quickly become unusable past a few hundred posts.
-const { items: results, nextCursor } = query
-	? await search(query, { collections: ["posts"], limit: 30 })
+const searchResult = query
+	? await search(query, { collections: ["posts", "pages"], limit: 30, cursor }).catch((error: unknown) => {
+		if (error instanceof InvalidCursorError) return null;
+		throw error;
+	})
 	: { items: [], nextCursor: undefined };
+if (!searchResult) return Astro.redirect(basePath);
+const { items: results, nextCursor } = searchResult;
 
 function escapeHtml(text: string) {
 	return text
@@ -32,21 +40,21 @@ const rows = results.map((result) => {
 		result.snippet?.replaceAll("<mark>", "").replaceAll("</mark>", "") ===
 		escapeHtml(title);
 	return {
-		path: `/posts/${result.slug ?? result.id}`,
+		path: `/${result.collection === "pages" ? "pages" : "posts"}/${encodeURIComponent(result.slug ?? result.id)}`,
 		title,
 		titleHtml: snippetIsTitle ? result.snippet : undefined,
 		snippet: snippetIsTitle ? undefined : result.snippet,
 	};
 });
 
-const countLabel = nextCursor
-	? `上位${rows.length}件`
+const countLabel = cursor || nextCursor
+	? `このページに${rows.length}件`
 	: `${rows.length}件`;
 ---
 
 <Base
 	title={query ? `「${query}」の検索結果` : "記録を探す"}
-	description="記録のタイトルや本文を検索します。"
+	description="記録と固定ページのタイトルや本文を検索します。"
 >
 	<header class="band intro">
 		<div class="frame">
@@ -87,7 +95,7 @@ const countLabel = nextCursor
 			{
 				!query && (
 					<p class="search-hint">
-						記録のタイトルや本文を検索できます。{" "}
+						記録と固定ページのタイトルや本文を検索できます。{" "}
 						<a href="/posts">記録一覧を見る</a>
 					</p>
 				)
@@ -160,7 +168,7 @@ const countLabel = nextCursor
 						</>
 					) : (
 						<div class="empty-state">
-							<h2 class="empty-state__title">「{query}」に一致する記録はありません</h2>
+							<h2 class="empty-state__title">{cursor ? "これ以降の検索結果はありません" : `「${query}」に一致する記録はありません`}</h2>
 							<p class="empty-state__text">
 								別の言葉で検索するか、記事一覧からお探しください。
 							</p>
@@ -171,6 +179,7 @@ const countLabel = nextCursor
 							</div>
 						</div>
 					)}
+					<Pagination {basePath} {cursor} {nextCursor} />
 				</div>
 			</section>
 		)

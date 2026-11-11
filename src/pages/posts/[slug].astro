@@ -6,7 +6,6 @@ import {
 	getSeoMeta,
 	decodeSlug,
 	getSiteSettingsWithCacheHint,
-	getRequestContext,
 } from "emdash";
 import { PortableText, WidgetArea } from "emdash/ui";
 import { Comments, CommentForm } from "emdash/ui/comments";
@@ -78,27 +77,10 @@ const authorId = "authorId" in post.data && typeof post.data.authorId === "strin
 const posterByline = bylines.find(({ byline, source }) =>
 	authorId ? byline.userId === authorId : source === "inferred",
 );
-const localDb = Astro.locals.emdash?.db;
-// Anonymous rendering exposes the scoped database through the request context.
-const db = localDb ?? (getRequestContext()?.db as typeof localDb);
-const posterName = posterByline?.byline.displayName.trim() || (
-	authorId && db
-		? (await db.selectFrom("users").select("name").where("id", "=", authorId).executeTakeFirst())?.name?.trim()
-		: undefined
-);
+// Only expose the public byline; never fall back to an account's internal name.
+const posterName = posterByline?.byline.displayName.trim();
 const editorialNote = post.data.editorial_note?.trim() || "なし";
 
-// Replace the old sample footer at render time, preserving the stored article.
-const legacyCredit = "取材・構成：編集部（サンプル）";
-const legacyNote = "注記：本記事は掲載テスト用に制作されたフィクションです。";
-const articleContent = [...(post.data.content ?? [])];
-for (let index = 0; index < 2; index++) {
-	const block = articleContent.at(-1);
-	if (block?._type !== "block" || !Array.isArray(block.children)) break;
-	const text = block.children.map((child) => child.text ?? "").join("").replace(/\s+/g, "");
-	if (text !== legacyCredit && text !== legacyNote && text !== legacyCredit + legacyNote) break;
-	articleContent.pop();
-}
 const interviewee = post.data.interviewee?.trim();
 const interviewMethod = post.data.interview_method?.trim();
 const rawInterviewDate = post.data.interview_date;
@@ -255,8 +237,8 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 						<summary>目次</summary>
 						<ol class="toc__list" data-toc-list role="list"></ol>
 					</details>
-					<div class="prose" data-post-content>
-						<PortableText value={articleContent} components={{ type: { image: ArticleImageBlock } }} />
+					<div class="prose" data-post-content {...post.edit.content}>
+						<PortableText value={post.data.content} components={{ type: { image: ArticleImageBlock } }} />
 					</div>
 					<dl class="post-header__credits post-colophon">
 						<div class="post-header__credit">
@@ -358,17 +340,17 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 				frame.className = "article-photo-fallback";
 				const message = document.createElement("span");
 				message.textContent = "イメージを読み込めませんでした";
-				frame.append(message);
+				frame.appendChild(message);
 
 				const alt = (photo?.alt ?? figure.dataset.photoAlt)?.trim();
 				if (alt) {
 					const description = document.createElement("span");
 					description.textContent = alt;
-					frame.append(description);
+					frame.appendChild(description);
 				}
 
 				if (photo) photo.replaceWith(frame);
-				else figure.prepend(frame);
+				else figure.insertBefore(frame, figure.firstChild);
 			};
 
 			const showPhoto = () => figure.classList.add("article-photo-ready");

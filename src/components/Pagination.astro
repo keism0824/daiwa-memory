@@ -7,6 +7,8 @@ interface Props {
 }
 
 const { basePath, cursor, nextCursor } = Astro.props;
+const nextUrl = new URL(basePath, Astro.url);
+if (nextCursor) nextUrl.searchParams.set("cursor", nextCursor);
 ---
 
 {
@@ -31,7 +33,7 @@ const { basePath, cursor, nextCursor } = Astro.props;
 			)}
 			{nextCursor && (
 				<a
-					href={`${basePath}?cursor=${encodeURIComponent(nextCursor)}`}
+					href={`${nextUrl.pathname}${nextUrl.search}`}
 					class="btn btn--ghost pagination__next"
 				>
 					次のページ
