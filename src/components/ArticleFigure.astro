@@ -10,27 +10,28 @@ const { image } = Astro.props;
 ---
 
 <figure class="article-figure">
-	<Image image={image} sizes="(max-width: 720px) 94vw, (min-width: 780px) 576px, 72vw" priority />
+	<Image image={image} sizes="(max-width: 720px) 94vw, 48rem" priority />
 	{image.caption?.trim() && <figcaption>{image.caption}</figcaption>}
 </figure>
 
 <style>
 	.article-figure {
 		inline-size: fit-content;
-		max-inline-size: min(80%, 36rem);
+		max-inline-size: 100%;
+		margin-inline: auto;
 	}
 
 	.article-figure :global(img) {
 		display: block;
 		max-inline-size: 100%;
-		max-block-size: 33.6rem;
 		inline-size: auto;
 		block-size: auto;
+		margin-inline: auto;
 	}
 
 	figcaption {
 		contain: inline-size;
-		margin-block-start: var(--spacing-3);
+		margin-block-start: var(--spacing-2);
 		color: var(--color-muted);
 		font-size: var(--font-size-sm);
 		line-height: 1.65;
@@ -38,21 +39,4 @@ const { image } = Astro.props;
 		white-space: pre-line;
 	}
 
-	@media (min-width: 780px) {
-		.article-figure {
-			max-inline-size: min(100%, 36rem);
-		}
-	}
-
-	@media (max-width: 720px) {
-		.article-figure,
-		.article-figure :global(img) {
-			inline-size: 100%;
-			max-inline-size: 100%;
-		}
-
-		.article-figure :global(img) {
-			max-block-size: none;
-		}
-	}
 </style>

@@ -138,18 +138,22 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		<header class="band post-header">
 			<div class="frame reading-frame post-layout">
 				<div class="post-main post-header__inner">
-					{post.data.featured_image && (
-						<div class="post-header__figure" {...post.edit.featured_image}>
-							<ArticleFigure image={post.data.featured_image} />
+					{(recordNumber || categories.length > 0) && (
+						<div class="post-header__identity">
+							{recordNumber && <p class="post-header__record-number">{recordNumber}</p>}
+							{categories.length > 0 && (
+								<ul class="post-header__categories" aria-label="カテゴリー" role="list">
+									{categories.map((term) => (
+										<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
+									))}
+								</ul>
+							)}
 						</div>
 					)}
+					<h1 class="reading-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
 					{post.data.excerpt && (
 						<p class="reading-lead post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
 					)}
-					<div class="post-header__title-row">
-						{recordNumber && <p class="record-list-title post-header__record-number">{recordNumber}</p>}
-						<h1 class="record-list-title reading-title post-header__title" {...post.edit.title}>{post.data.title}</h1>
-					</div>
 					<dl class="post-header__credits">
 						{posterName && (
 							<div class="post-header__credit">
@@ -163,29 +167,22 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 								<dd>{writerNames}</dd>
 							</div>
 						)}
-						{categories.length > 0 && (
-							<div class="post-header__credit">
-								<dt>カテゴリー</dt>
-								<dd>
-									<ul class="post-header__categories" role="list">
-										{categories.map((term) => (
-											<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
-										))}
-									</ul>
-								</dd>
-							</div>
-						)}
 						<div class="post-header__credit">
 							<dt>読了の目安</dt>
 							<dd>{readingTime}</dd>
 						</div>
 						{publishedAt && (
 							<div class="post-header__credit">
-								<dt>投稿日</dt>
+								<dt>公開日</dt>
 								<dd><time datetime={publishedAt.toISOString()}>{publishDate}</time></dd>
 							</div>
 						)}
 					</dl>
+					{post.data.featured_image && (
+						<div class="post-header__figure" {...post.edit.featured_image}>
+							<ArticleFigure image={post.data.featured_image} />
+						</div>
+					)}
 				</div>
 			</div>
 		</header>
@@ -211,8 +208,21 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 					<section class="post-comments" aria-labelledby="comments-title">
 						<h2 id="comments-title" class="eyebrow">コメント</h2>
-						<Comments collection="posts" contentId={post.data.id} threaded />
-						<CommentForm collection="posts" contentId={post.data.id} />
+						<Comments collection="posts" contentId={post.data.id} threaded locale="ja-JP" labels={{
+							heading: (count) => count ? `コメント ${count}件` : "コメントはまだありません",
+							member: "サイトメンバー",
+						}} />
+						<CommentForm collection="posts" contentId={post.data.id} labels={{
+							name: "お名前",
+							email: "メールアドレス",
+							comment: "コメント本文",
+							submit: "コメントを送る",
+							submitting: "送信中…",
+							published: "コメントを公開しました。",
+							pending: "コメントを受け付けました。確認後に公開します。",
+							error: "コメントを送れませんでした。入力内容をご確認ください。",
+							networkError: "通信に失敗しました。時間をおいて再度お試しください。",
+						}} />
 					</section>
 					<a href="/posts" class="paper-link post-back-link">記録一覧へ戻る</a>
 				</div>
@@ -272,6 +282,14 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 			const list = toc?.querySelector("[data-toc-list]");
 			if (!content || !toc || !list) return;
 
+			for (const paragraph of content.querySelectorAll("p:has(> strong:only-child)")) {
+				const text = paragraph.textContent?.trim();
+				const emphasis = paragraph.firstElementChild?.textContent?.trim();
+				if (text === emphasis && /[？?][」』）)]?$/.test(text ?? "")) {
+					paragraph.classList.add("interview-question");
+				}
+			}
+
 			const headings = [
 				...content.querySelectorAll<HTMLHeadingElement>("h2, h3"),
 			];
@@ -284,6 +302,8 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 					.map((element) => element.id),
 			);
 			const links = new Map<Element, HTMLAnchorElement>();
+			let chapter: HTMLLIElement | undefined;
+			let subsections: HTMLOListElement | undefined;
 			headings.forEach((heading, index) => {
 				const baseId = heading.id || `heading-${index}`;
 				let id = baseId;
@@ -292,12 +312,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 				}
 				usedIds.add(id);
 				heading.id = id;
+				heading.tabIndex = -1;
 
 				const item = document.createElement("li");
-				item.className =
-					heading.tagName === "H3"
-						? "toc__item toc__item--nested"
-						: "toc__item";
+				if (heading.tagName === "H2") {
+					chapter = item;
+					subsections = undefined;
+				}
 
 				const link = document.createElement("a");
 				link.href = `#${encodeURIComponent(id)}`;
@@ -305,10 +326,27 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 				link.textContent = heading.textContent;
 
 				item.appendChild(link);
-				list.appendChild(item);
+				if (heading.tagName === "H3" && chapter) {
+					if (!subsections) {
+						subsections = document.createElement("ol");
+						subsections.className = "toc__subsections";
+						chapter.appendChild(subsections);
+					}
+					subsections.appendChild(item);
+				} else {
+					list.appendChild(item);
+				}
 				links.set(heading, link);
 			});
 			toc.hidden = false;
+			if (location.hash) {
+				try {
+					const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+					if (target && links.has(target)) target.scrollIntoView();
+				} catch {
+					// A malformed fragment has no matching heading.
+				}
+			}
 
 			// Mark the section currently in view
 			const setCurrent = (link: HTMLAnchorElement) => {
@@ -338,56 +376,82 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 </Base>
 
 <style>
+	.post {
+		--article-photo-space: clamp(1.75rem, 4vw, 3rem);
+		background: var(--color-bg);
+		color: var(--color-text);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.post {
+			color-scheme: dark;
+			--color-bg: #211e1b;
+			--color-surface: #2b2825;
+			--color-fill: #39332e;
+			--color-fill-strong: #4a4139;
+			--color-text: #f3eee6;
+			--color-text-secondary: #ded5ca;
+			--color-muted: #c3b7aa;
+			--color-border: #5e5349;
+			--color-border-subtle: #484038;
+			--color-border-strong: #a49686;
+			--color-brand: #efc29e;
+			--color-brand-hover: #ffe0c7;
+			--color-on-brand: #2b2825;
+		}
+	}
+
 	.post-header {
-		padding-block: clamp(2rem, 1.25rem + 3vw, 4rem) var(--spacing-6);
+		padding-block: clamp(2rem, 1.25rem + 3vw, 4rem) 0;
 	}
 
 	.post-header__inner {
 		text-align: start;
 	}
 
-	.post-header__record-number {
-		flex: none;
-		max-inline-size: 45%;
+	.post-header__identity {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--spacing-1) var(--spacing-4);
+		margin-block-end: var(--spacing-3);
 		color: var(--color-muted);
-		font-family: var(--font-heading);
-		line-height: var(--leading-tight);
+		font-size: var(--font-size-sm);
 		overflow-wrap: anywhere;
+	}
+
+	.post-header__record-number {
+		font-family: var(--font-heading);
 	}
 
 	.post-header__lead {
+		margin-block-start: var(--spacing-5);
 		font-family: var(--font-reading);
-		font-size: var(--font-size-xl);
-		line-height: 1.8;
+		font-size: clamp(1.125rem, 1.06rem + 0.3vw, 1.3125rem);
+		line-height: 1.85;
 		line-break: strict;
-		overflow-wrap: anywhere;
-	}
-
-	.post-header__title-row {
-		display: flex;
-		align-items: baseline;
-		gap: clamp(0.625rem, 1.5vw, 1.25rem);
-		margin-block-start: var(--spacing-4);
+		color: var(--color-text-secondary);
+		overflow-wrap: break-word;
 	}
 
 	.post-header__title {
-		min-inline-size: 0;
+		font-family: var(--font-heading);
+		font-size: clamp(1.625rem, 1.25rem + 1.5vw, 2.5rem);
+		line-height: 1.45;
+		line-break: strict;
+		overflow-wrap: break-word;
 	}
 
 	.post-header__credits {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--spacing-3) var(--spacing-8);
-		max-inline-size: 30rem;
-		margin-block-start: var(--spacing-5);
-		padding-block-start: var(--spacing-4);
-		border-block-start: 1px solid var(--color-border);
-		text-align: start;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-3) var(--spacing-6);
+		margin-block-start: var(--spacing-6);
 	}
 
 	.post-header__credit {
 		display: grid;
-		gap: var(--spacing-1);
+		gap: 0;
 		font-size: var(--font-size-sm);
 		overflow-wrap: anywhere;
 	}
@@ -417,8 +481,61 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		margin-block-start: var(--spacing-8);
 	}
 
+	.prose[data-post-content] {
+		line-height: 1.95;
+	}
+
+	.prose[data-post-content] > :global(:is(h2, h3, h4, h5, h6)) {
+		margin-block-start: 2em;
+		scroll-margin-block-start: 5rem;
+		break-after: avoid;
+	}
+
+	.prose[data-post-content] > :global(:is(h2, h3, h4, h5, h6) + *) {
+		margin-block-start: 0.65em;
+	}
+
+	.prose[data-post-content] > :global(.interview-question) {
+		margin-block-start: 1.85em;
+	}
+
+	.prose[data-post-content] > :global(.interview-question + p) {
+		margin-block-start: 0.6em;
+	}
+
+	.prose[data-post-content] :global(figure.emdash-image) {
+		float: none;
+		inline-size: fit-content;
+		max-inline-size: 100%;
+		margin: var(--article-photo-space) auto;
+	}
+
+	.prose[data-post-content] :global(.emdash-gallery) {
+		margin-block: var(--article-photo-space);
+		align-items: start;
+	}
+
+	.prose[data-post-content] :global(figure:is(.emdash-image, .emdash-gallery-item) img) {
+		display: block;
+		inline-size: auto;
+		max-inline-size: 100%;
+		block-size: auto;
+		aspect-ratio: auto;
+		object-fit: contain;
+		margin-inline: auto;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
 	.prose[data-post-content] :global(figure:is(.emdash-image, .emdash-gallery-item) > figcaption) {
-		text-align: start;
+		contain: inline-size;
+		color: var(--color-muted);
+		white-space: pre-line;
+	}
+
+	.prose[data-post-content] > :global(:is(h2, h3, h4, h5, h6, figure, .emdash-gallery, .interview-question):first-child) {
+		margin-block-start: 0;
 	}
 
 	/* Body: one reading column, widgets after the comments */
@@ -448,13 +565,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__figure {
-		margin-block-end: var(--spacing-6);
+		margin-block-start: var(--article-photo-space);
 	}
 
 	/* Table of contents */
 	.toc--inline {
-		margin-block-end: var(--spacing-6);
-		border-block: 1px solid var(--color-border);
+		margin-block-end: var(--article-photo-space);
+		border-block-start: 1px solid var(--color-border);
 		font-family: var(--font-heading);
 	}
 
@@ -468,15 +585,14 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		margin-block-end: var(--spacing-4);
 	}
 
-	.toc__list {
+	.toc__list,
+	.toc :global(.toc__subsections) {
 		list-style: none;
-		border-inline-start: 1px solid var(--color-border);
 	}
 
 	.toc :global(.toc__link) {
 		display: block;
-		margin-inline-start: -1px;
-		padding-block: 5px;
+		padding-block: var(--spacing-2);
 		padding-inline: var(--spacing-3) 0;
 		border-inline-start: 2px solid transparent;
 		color: var(--color-muted);
@@ -488,12 +604,14 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 			border-color var(--transition-fast);
 	}
 
-	.toc :global(.toc__item--nested .toc__link) {
+	.toc :global(.toc__subsections .toc__link) {
 		padding-inline-start: var(--spacing-6);
 	}
 
-	.toc :global(.toc__link:hover) {
+	.toc :global(.toc__link:hover),
+	.toc :global(.toc__link:focus-visible) {
 		color: var(--color-text);
+		text-decoration: underline;
 	}
 
 	.toc :global(.toc__link[aria-current="true"]) {
@@ -959,28 +1077,18 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	@media (max-width: 720px) {
-		.post-header__figure,
-		.toc--inline {
-			margin-block-end: var(--spacing-8);
+		.reading-frame {
+			--frame-padding: 0.625rem;
 		}
 
-		.post-body {
-			padding-block-start: var(--spacing-8);
+		.prose[data-post-content] {
+			line-height: 1.9;
 		}
 
-		.post-header__lead {
-			font-size: var(--font-size-lg);
-		}
-
-		.post-header__title-row {
-			flex-direction: column;
-			align-items: stretch;
-			gap: var(--spacing-1);
-			margin-block-start: var(--spacing-6);
-		}
-
-		.post-header__record-number {
-			max-inline-size: none;
+		.toc :global(.toc__link) {
+			min-block-size: 2.75rem;
+			display: flex;
+			align-items: center;
 		}
 
 		.post-widgets :global(.widget-search__input) {
@@ -988,14 +1096,4 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		}
 	}
 
-	@media (max-width: 480px) {
-		.post-header__credits {
-			grid-template-columns: minmax(0, 1fr);
-		}
-
-		.post-header__credit {
-			grid-template-columns: 5.5rem minmax(0, 1fr);
-			align-items: baseline;
-		}
-	}
 </style>
