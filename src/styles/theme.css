@@ -27,7 +27,7 @@
 
 :root {
 	--font-heading: var(--font-japanese-serif, "Yu Mincho", "Hiragino Mincho ProN", serif);
-	--font-reading: var(--font-japanese-reading, var(--font-heading));
+	--font-reading: var(--font-heading);
 	--font-size-reading: clamp(1.1875rem, 1.125rem + 0.2vw, 1.25rem);
 	--leading-reading: 1.95;
 	--tracking-reading: 0.01em;

@@ -45,14 +45,6 @@ export default defineConfig({
 		},
 		{
 			provider: fontProviders.google(),
-			name: "Klee One",
-			cssVariable: "--font-japanese-reading",
-			weights: [400],
-			styles: ["normal"],
-			fallbacks: ["Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "serif"],
-		},
-		{
-			provider: fontProviders.google(),
 			name: "JetBrains Mono",
 			cssVariable: "--font-mono",
 			weights: [400, 500],
