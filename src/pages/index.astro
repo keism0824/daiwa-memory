@@ -96,6 +96,12 @@ const categoriesByEntry = await getTermsForEntries(
 		line-height: 1.28;
 	}
 
+	@media (max-width: 720px) {
+		.home-intro__title {
+			font-size: clamp(1.9375rem, 1.2625rem + 2.7vw, 3.1875rem);
+		}
+	}
+
 	.home-intro__tagline {
 		margin-block-start: var(--spacing-4);
 		font-size: clamp(1.125rem, 0.9rem + 0.5vw, 1.375rem);
