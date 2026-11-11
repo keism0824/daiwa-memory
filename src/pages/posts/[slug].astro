@@ -307,9 +307,14 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 				else figure.prepend(frame);
 			};
 
-			if (!photo || (photo.complete && photo.naturalWidth === 0)) {
+			const showPhoto = () => figure.classList.add("article-photo-ready");
+			if (!photo) {
 				showFallback();
+			} else if (photo.complete) {
+				if (photo.naturalWidth > 0) showPhoto();
+				else showFallback();
 			} else {
+				photo.addEventListener("load", showPhoto, { once: true });
 				photo.addEventListener("error", showFallback, { once: true });
 			}
 		}
@@ -586,6 +591,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		line-break: strict;
 		overflow-wrap: anywhere;
 		white-space: pre-line;
+	}
+
+	@media (scripting: enabled) {
+		.post-header__figure :global(figure.article-figure:not(.article-photo-ready, .article-photo-unavailable) :is(img, figcaption)),
+		.prose[data-post-content] :global(figure:is(.emdash-image, .emdash-gallery-item):not(.article-photo-ready, .article-photo-unavailable) :is(img, figcaption)) {
+			visibility: hidden;
+		}
 	}
 
 	.post-header__figure :global(figure.article-figure.article-photo-unavailable),
