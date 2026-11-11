@@ -9,7 +9,7 @@ interface Props {
 const { image } = Astro.props;
 ---
 
-<figure class="article-figure">
+<figure class="article-figure" data-photo-alt={image.alt ?? ""}>
 	<Image image={image} sizes="(max-width: 720px) 94vw, 48rem" priority />
 	{image.caption?.trim() && <figcaption>{image.caption}</figcaption>}
 </figure>

@@ -282,6 +282,38 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	<script>
+		for (const figure of document.querySelectorAll<HTMLElement>(
+			".post-header__figure figure.article-figure, [data-post-content] figure:is(.emdash-image, .emdash-gallery-item)",
+		)) {
+			const photo = figure.querySelector<HTMLImageElement>("img:not(.emdash-image--dark)");
+			const showFallback = () => {
+				if (figure.classList.contains("article-photo-unavailable")) return;
+				figure.classList.add("article-photo-unavailable");
+
+				const frame = document.createElement("div");
+				frame.className = "article-photo-fallback";
+				const message = document.createElement("span");
+				message.textContent = "イメージを読み込めませんでした";
+				frame.append(message);
+
+				const alt = (photo?.alt ?? figure.dataset.photoAlt)?.trim();
+				if (alt) {
+					const description = document.createElement("span");
+					description.textContent = alt;
+					frame.append(description);
+				}
+
+				if (photo) photo.replaceWith(frame);
+				else figure.prepend(frame);
+			};
+
+			if (!photo || (photo.complete && photo.naturalWidth === 0)) {
+				showFallback();
+			} else {
+				photo.addEventListener("error", showFallback, { once: true });
+			}
+		}
+
 		// Build the table of contents from the body's h2/h3 headings
 		function buildToc() {
 			const content = document.querySelector("[data-post-content]");
@@ -554,6 +586,29 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		line-break: strict;
 		overflow-wrap: anywhere;
 		white-space: pre-line;
+	}
+
+	.post-header__figure :global(figure.article-figure.article-photo-unavailable),
+	.prose[data-post-content] :global(figure.emdash-image.article-photo-unavailable),
+	.prose[data-post-content] :global(figure.article-photo-unavailable > a:has(> .article-photo-fallback)) {
+		inline-size: 100%;
+	}
+
+	.post :global(.article-photo-fallback) {
+		display: grid;
+		align-content: center;
+		gap: var(--spacing-2);
+		min-block-size: clamp(9rem, 36vw, 15rem);
+		padding: var(--spacing-4);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font-family: var(--font-body);
+		font-size: var(--font-size-sm);
+		line-height: 1.65;
+		writing-mode: horizontal-tb;
+		text-align: center;
+		overflow-wrap: anywhere;
 	}
 
 	.prose[data-post-content] > :global(:is(h2, h3, h4, h5, h6, figure, .emdash-gallery, .interview-question):first-child) {
