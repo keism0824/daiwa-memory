@@ -51,4 +51,10 @@ const source = href && /^https?:/i.test(href) && URL.canParse(href) ? new URL(hr
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}
+
+	@media (max-width: 720px) {
+		.article-image-source :global(.emdash-image > a[href^="http" i]) {
+			inline-size: 100%;
+		}
+	}
 </style>

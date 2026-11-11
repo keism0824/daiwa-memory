@@ -209,7 +209,7 @@
 
 	.prose {
 		--font-size-reading: 1.125rem;
-		--leading-reading: 1.85;
+		--leading-reading: 1.9;
 	}
 
 	.reading-lead:lang(ja),
@@ -219,8 +219,16 @@
 		text-align-last: start;
 	}
 
-	.prose > p + p {
-		margin-block-start: 1.25em;
+	.prose figure.emdash-image {
+		float: none;
+		inline-size: 100%;
+		max-inline-size: 100%;
+		margin: var(--spacing-8) 0;
+	}
+
+	.prose figure.emdash-image img {
+		display: block;
+		inline-size: 100%;
 	}
 }
 
