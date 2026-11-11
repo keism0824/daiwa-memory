@@ -45,6 +45,12 @@ export default defineConfig({
 		},
 		{
 			provider: fontProviders.google(),
+			name: "Shippori Mincho B1",
+			cssVariable: "--font-shippori-mincho-b1",
+			weights: [400, 600, 700],
+		},
+		{
+			provider: fontProviders.google(),
 			name: "JetBrains Mono",
 			cssVariable: "--font-mono",
 			weights: [400, 500],

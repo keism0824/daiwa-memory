@@ -105,8 +105,12 @@ body::before,
 	display: none;
 }
 
+.site-title-text,
 :root .brand .brand__name {
-	font-family: var(--font-heading);
+	font-family: var(--font-shippori-mincho-b1, var(--font-heading));
+}
+
+:root .brand .brand__name {
 	letter-spacing: 0.04em;
 }
 
