@@ -64,12 +64,14 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		<Heading class="post__title" {...post.edit.title}>
 			<a href={href}>{title}</a>
 		</Heading>
-		<a class="post__summary" href={href} aria-label={`「${title}」の続きを読む`}>
-			{post.data.excerpt && (
-				<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
-			)}
-			<span class="post__read-more">続きを読む</span>
-		</a>
+		{(post.data.excerpt || !isContents) && (
+			<a class="post__summary" href={href} aria-label={`「${title}」の続きを読む`}>
+				{post.data.excerpt && (
+					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+				)}
+				{!isContents && <span class="post__read-more">続きを読む</span>}
+			</a>
+		)}
 		{(bylines.length > 0 || visibleTags.length > 0) && (
 			<div class="post__footer">
 				<Byline bylines={bylines} max={variant === "card" ? 1 : 2} size="xs" />

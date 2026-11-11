@@ -519,6 +519,10 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		margin: var(--article-photo-space) auto;
 	}
 
+	.post-header__figure :global(figure.article-figure) {
+		margin-block-start: var(--spacing-3);
+	}
+
 	.prose[data-post-content] :global(.emdash-gallery) {
 		margin-block: var(--article-photo-space);
 		align-items: start;
