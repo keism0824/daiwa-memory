@@ -552,9 +552,10 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__credits {
+		--credit-rule-width: 34rem;
 		display: grid;
 		gap: var(--spacing-1);
-		max-inline-size: 34rem;
+		max-inline-size: var(--credit-rule-width);
 		margin-block-start: var(--spacing-6);
 		padding-block: var(--spacing-3);
 		border-block: 1px solid var(--color-border);
@@ -785,8 +786,28 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		}
 
 		.post-header__inner .post-header__credits {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+			position: relative;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 			column-gap: var(--spacing-6);
+			max-inline-size: none;
+			border-block-color: transparent;
+		}
+
+		.post-header__inner .post-header__credits::before,
+		.post-header__inner .post-header__credits::after {
+			content: "";
+			position: absolute;
+			inset-inline-start: 0;
+			inline-size: min(100%, var(--credit-rule-width));
+			border-block-start: 1px solid var(--color-border);
+		}
+
+		.post-header__inner .post-header__credits::before {
+			inset-block-start: -1px;
+		}
+
+		.post-header__inner .post-header__credits::after {
+			inset-block-end: -1px;
 		}
 	}
 
