@@ -195,7 +195,8 @@
 
 @media (max-width: 720px) {
 	.reading-frame {
-		--frame-padding: clamp(0.625rem, 2vw, 1rem);
+		--frame-width: 100%;
+		--frame-padding: 1rem;
 	}
 
 	.record-list-title.reading-title {
@@ -210,6 +211,11 @@
 	.prose {
 		--font-size-reading: 1.125rem;
 		--leading-reading: 1.9;
+	}
+
+	.reading-lead,
+	.prose p {
+		text-wrap: wrap;
 	}
 
 	.prose figure.emdash-image {
