@@ -42,11 +42,15 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 	{nextCursor}
 >
 	{categoryResult.data.length > 0 && (
-		<nav slot="navigation" class="archive-categories" aria-label="分類から探す">
-			<p>分類から探す</p>
+		<nav slot="navigation" class="archive-categories" aria-labelledby="archive-categories-title">
+			<p class="archive-categories__label">記録の索引</p>
+			<h2 id="archive-categories-title">テーマからたどる</h2>
 			<ul role="list">
 				{categoryResult.data.map((term) => (
-					<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
+					<li>
+						<h3><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></h3>
+						{term.description?.trim() && <p class="paper-reading">{term.description}</p>}
+					</li>
 				))}
 			</ul>
 		</nav>
@@ -54,24 +58,32 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 </RecordArchive>
 
 <style>
-	.archive-categories {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: var(--spacing-1) var(--spacing-6);
+	.archive-categories__label {
 		color: var(--color-muted);
 		font-size: var(--font-size-sm);
+		letter-spacing: 0.12em;
+	}
+
+	.archive-categories h2 {
+		margin-block-start: var(--spacing-1);
+		font-size: var(--font-size-2xl);
 	}
 
 	.archive-categories ul {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2) var(--spacing-4);
+		display: grid;
+		gap: var(--spacing-5);
+		margin-block-start: var(--spacing-4);
 		list-style: none;
 	}
 
-	.archive-categories a {
-		display: inline-block;
-		padding-block: var(--spacing-1);
+	.archive-categories h3 {
+		font-size: var(--font-size-xl);
+	}
+
+	.archive-categories li p {
+		margin-block-start: var(--spacing-1);
+		color: var(--color-text-secondary);
+		overflow-wrap: anywhere;
+		white-space: pre-line;
 	}
 </style>
