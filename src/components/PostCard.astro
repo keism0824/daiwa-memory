@@ -46,49 +46,30 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 			<span class="post__record-number-value">{recordNumber}</span>
 		</p>
 	)}
-	{(publishedAt || variant === "card") && (
-		<div class="post__meta">
-			{publishedAt && (
-				<time datetime={publishedAt.toISOString()}>{formatDate(publishedAt, isContents ? "long" : "short")}</time>
-			)}
-			{!isContents && categories.length > 0 ? (
-				<ul class="post__terms" aria-label="分類" role="list">
-					{categories.map((term) => (
-						<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
-					))}
-				</ul>
-			) : variant === "card" ? (
-				<span>{formatReadingTime(getReadingTime(post.data.content))}</span>
-			) : null}
-		</div>
-	)}
 	<div class="post__body">
-		{isContents ? (
-			<a class="post__summary" href={href} aria-labelledby={`record-title-${post.data.id}`}>
-				<Heading id={`record-title-${post.data.id}`} class="post__title" {...post.edit.title}>
-					{title}
-				</Heading>
-				{post.data.excerpt && (
-					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+		<Heading class="post__title" {...post.edit.title}>
+			<a href={href}>{title}</a>
+		</Heading>
+		{(publishedAt || categories.length > 0 || !isContents) && (
+			<div class="post__meta">
+				{publishedAt && (
+					<time datetime={publishedAt.toISOString()}>{formatDate(publishedAt, isContents ? "long" : "short")}</time>
 				)}
-			</a>
-		) : (
-			<>
-				<Heading class="post__title" {...post.edit.title}>
-					<a href={href}>{title}</a>
-				</Heading>
-				{post.data.excerpt && (
-					<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+				{categories.length > 0 ? (
+					<ul class="post__terms" aria-label="分類" role="list">
+						{categories.map((term) => <li>{term.label}</li>)}
+					</ul>
+				) : !isContents && (
+					<span>{formatReadingTime(getReadingTime(post.data.content))}</span>
 				)}
-			</>
+			</div>
 		)}
-		{isContents && categories.length > 0 && (
-			<ul class="post__terms" aria-label="分類" role="list">
-				{categories.map((term) => (
-					<li><a href={`/category/${term.slug}`}>{term.label}</a></li>
-				))}
-			</ul>
-		)}
+		<a class="post__summary" href={href} aria-label={`「${title}」の続きを読む`}>
+			{post.data.excerpt && (
+				<p class="post__excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>
+			)}
+			<span class="post__read-more">続きを読む</span>
+		</a>
 		{(bylines.length > 0 || visibleTags.length > 0) && (
 			<div class="post__footer">
 				<Byline bylines={bylines} max={variant === "card" ? 1 : 2} size="xs" />
@@ -164,9 +145,7 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 	}
 
 	.post__title a:hover,
-	.post__title a:focus-visible,
-	.post__summary:hover .post__title,
-	.post__summary:focus-visible .post__title {
+	.post__title a:focus-visible {
 		color: var(--color-brand);
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
@@ -179,12 +158,24 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		text-decoration: none;
 	}
 
+	.post__read-more {
+		justify-self: start;
+		color: var(--color-brand);
+		font-size: var(--font-size-sm);
+		text-decoration: underline;
+		text-underline-offset: 0.22em;
+	}
+
 	.post__excerpt {
 		max-inline-size: 40rem;
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-base);
 		line-height: 1.75;
 		line-break: strict;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
 	}
 
 	.post__image :global(img) {
@@ -204,13 +195,12 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 
 	.post--with-record-number {
 		grid-template-columns: auto minmax(0, 1fr);
-		grid-template-rows: auto 1fr;
 		column-gap: clamp(0.5rem, 1.2vw, 0.875rem);
 	}
 
 	.post__record-number {
 		grid-column: 1;
-		grid-row: 1 / span 2;
+		grid-row: 1;
 		padding-inline-end: var(--spacing-2);
 		border-inline-end: 1px solid var(--color-border);
 		color: var(--color-muted);
@@ -232,9 +222,5 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		font-family: var(--font-reading);
 		font-size: 1.0625rem;
 		line-height: 1.85;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		overflow: hidden;
 	}
 </style>
