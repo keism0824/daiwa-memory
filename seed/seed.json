@@ -48,6 +48,26 @@
 					"slug": "excerpt",
 					"label": "リード",
 					"type": "text"
+				},
+				{
+					"slug": "interviewee",
+					"label": "取材対象者",
+					"type": "string"
+				},
+				{
+					"slug": "interview_date",
+					"label": "取材日",
+					"type": "datetime"
+				},
+				{
+					"slug": "interview_method",
+					"label": "取材方法",
+					"type": "string"
+				},
+				{
+					"slug": "editorial_note",
+					"label": "注記",
+					"type": "text"
 				}
 			]
 		},
