@@ -32,6 +32,7 @@ export interface Post {
   interview_date?: string;
   interview_method?: string;
   editorial_note?: string;
+  interviewer?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;

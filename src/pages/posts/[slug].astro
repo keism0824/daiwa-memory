@@ -6,6 +6,7 @@ import {
 	getSeoMeta,
 	decodeSlug,
 	getSiteSettingsWithCacheHint,
+	getRequestContext,
 } from "emdash";
 import { PortableText, WidgetArea } from "emdash/ui";
 import { Comments, CommentForm } from "emdash/ui/comments";
@@ -67,10 +68,24 @@ const seo = getSeoMeta(post, {
 });
 
 const bylines = post.data.bylines ?? [];
-const interviewerNames = bylines.map(({ byline, roleLabel }) =>
+const writerNames = bylines.map(({ byline, roleLabel }) =>
 	roleLabel ? `${byline.displayName}（${roleLabel}）` : byline.displayName,
 ).join("、");
-const compositionNames = bylines.map(({ byline }) => byline.displayName.trim()).filter(Boolean).join("、");
+const interviewer = post.data.interviewer?.trim();
+const authorId = "authorId" in post.data && typeof post.data.authorId === "string"
+	? post.data.authorId
+	: undefined;
+const posterByline = bylines.find(({ byline, source }) =>
+	authorId ? byline.userId === authorId : source === "inferred",
+);
+const localDb = Astro.locals.emdash?.db;
+// Anonymous rendering exposes the scoped database through the request context.
+const db = localDb ?? (getRequestContext()?.db as typeof localDb);
+const posterName = posterByline?.byline.displayName.trim() || (
+	authorId && db
+		? (await db.selectFrom("users").select("name").where("id", "=", authorId).executeTakeFirst())?.name?.trim()
+		: undefined
+);
 const editorialNote = post.data.editorial_note?.trim() || "なし";
 
 // Replace the old sample footer at render time, preserving the stored article.
@@ -162,12 +177,24 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 							<p class="reading-lead post-header__lead" {...post.edit.excerpt}>{post.data.excerpt}</p>
 						</div>
 					)}
-					{(interviewerNames || interviewee || interviewDateLabel || interviewMethod || publishedAt || categories.length > 0) && (
+					{(interviewer || writerNames || posterName || interviewee || interviewDateLabel || interviewMethod || publishedAt || categories.length > 0) && (
 						<dl class="post-header__credits" aria-label="取材情報">
-							{interviewerNames && (
+							{interviewer && (
 								<div class="post-header__credit">
 									<dt>取材者</dt>
-									<dd>{interviewerNames}</dd>
+									<dd>{interviewer}</dd>
+								</div>
+							)}
+							{writerNames && (
+								<div class="post-header__credit">
+									<dt>執筆者</dt>
+									<dd>{writerNames}</dd>
+								</div>
+							)}
+							{posterName && (
+								<div class="post-header__credit">
+									<dt>投稿者</dt>
+									<dd>{posterName}</dd>
 								</div>
 							)}
 							{interviewee && (
@@ -234,7 +261,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 					<dl class="post-header__credits post-colophon">
 						<div class="post-header__credit">
 							<dt>構成</dt>
-							<dd>大和自治会広報部{compositionNames && `（${compositionNames}）`}</dd>
+							<dd>大和自治会広報部{posterName && `（${posterName}）`}</dd>
 						</div>
 						<div class="post-header__credit">
 							<dt>注記</dt>

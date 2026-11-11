@@ -68,6 +68,11 @@
 					"slug": "editorial_note",
 					"label": "注記",
 					"type": "text"
+				},
+				{
+					"slug": "interviewer",
+					"label": "取材者",
+					"type": "string"
 				}
 			]
 		},
