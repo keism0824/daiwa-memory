@@ -212,13 +212,6 @@
 		--leading-reading: 1.9;
 	}
 
-	.reading-lead:lang(ja),
-	.prose > p:lang(ja):not(.has-text-align-center, .has-text-align-right, .has-text-align-justify) {
-		text-align: justify;
-		text-justify: inter-character;
-		text-align-last: start;
-	}
-
 	.prose figure.emdash-image {
 		float: none;
 		inline-size: 100%;
