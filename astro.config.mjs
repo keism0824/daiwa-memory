@@ -45,9 +45,9 @@ export default defineConfig({
 		},
 		{
 			provider: fontProviders.google(),
-			name: "Shippori Mincho B1",
-			cssVariable: "--font-shippori-mincho-b1",
-			weights: [400, 600, 700],
+			name: "Klee One",
+			cssVariable: "--font-site-title",
+			weights: [400, 600],
 		},
 		{
 			provider: fontProviders.google(),
