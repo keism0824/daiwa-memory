@@ -76,8 +76,8 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 		list-style: none;
 	}
 
-	.archive-categories h3 {
-		font-size: var(--font-size-xl);
+	.archive-categories li :is(h3, p) {
+		font-size: 1.0625rem;
 	}
 
 	.archive-categories li p {
