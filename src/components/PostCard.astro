@@ -126,16 +126,20 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 		list-style: none;
 	}
 
-	.post__meta time + .post__terms > li:first-child {
-		position: relative;
+	.post__meta:has(time + .post__terms) {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		column-gap: var(--spacing-2);
 	}
 
-	.post__meta time + .post__terms > li:first-child::before {
-		content: "";
-		position: absolute;
-		inset-inline-start: calc(var(--spacing-2) * -1);
-		inset-block: 0.35em;
+	.post__meta time + .post__terms {
+		min-inline-size: 0;
+		padding-inline-start: var(--spacing-2);
 		border-inline-start: 1px solid var(--color-border);
+	}
+
+	.post__meta .post__terms > li {
+		min-inline-size: 0;
 	}
 
 	.post__terms a {
@@ -206,8 +210,13 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 	}
 
 	.post--with-record-number {
-		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-columns: max-content minmax(0, 1fr);
 		column-gap: clamp(0.5rem, 1.2vw, 0.875rem);
+	}
+
+	.post--with-record-number .post__body {
+		grid-column: 2;
+		grid-row: 1;
 	}
 
 	.post__record-number {
