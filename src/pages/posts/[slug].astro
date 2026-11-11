@@ -251,7 +251,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		<div class="band post-body">
 			<div class="frame reading-frame post-layout">
 				<div class="post-main">
-					<details class="toc toc--inline" data-toc hidden>
+					<details class="toc toc--inline" data-toc open hidden>
 						<summary>目次</summary>
 						<ol class="toc__list" data-toc-list role="list"></ol>
 					</details>
@@ -514,7 +514,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__preface {
-		margin-block-start: var(--spacing-6);
+		margin-block-start: var(--spacing-8);
 	}
 
 	.post-header__preface-label,
@@ -535,12 +535,12 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__title-block {
-		margin-block-start: var(--article-photo-space);
+		margin-block-start: max(var(--spacing-10), var(--article-photo-space));
 		text-align: center;
 	}
 
 	.post-header__title-block .post-header__record-number {
-		margin-block-end: var(--spacing-2);
+		margin-block-end: var(--spacing-4);
 	}
 
 	.post-header__title {
@@ -558,6 +558,12 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 		margin-block-start: var(--spacing-6);
 		padding-block: var(--spacing-3);
 		border-block: 1px solid var(--color-border);
+	}
+
+	.post-header__inner .post-header__credits {
+		row-gap: var(--spacing-2);
+		margin-block-start: var(--spacing-8);
+		padding-block: var(--spacing-4);
 	}
 
 	.post-header__credit {
@@ -578,7 +584,9 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-colophon {
-		margin-block-start: var(--spacing-8);
+		margin-block: var(--spacing-12);
+		padding-block: 0;
+		border-block: 0;
 	}
 
 	.post-colophon dd {
@@ -593,7 +601,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-body {
-		padding-block: var(--spacing-6) clamp(3rem, 6vw, 5rem);
+		padding-block: var(--spacing-10) clamp(3rem, 6vw, 5rem);
 	}
 
 	.post-back-link {
@@ -632,7 +640,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 	}
 
 	.post-header__figure :global(figure.article-figure) {
-		margin-block-start: var(--spacing-3);
+		margin-block-start: var(--spacing-6);
 	}
 
 	.prose[data-post-content] :global(.emdash-gallery) {
@@ -730,13 +738,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 	/* Table of contents */
 	.toc--inline {
-		margin-block-end: var(--article-photo-space);
+		margin-block-end: max(var(--spacing-10), var(--article-photo-space));
 		border-block-start: 1px solid var(--color-border);
 		font-family: var(--font-heading);
 	}
 
 	.toc--inline summary {
-		padding-block: var(--spacing-3);
+		padding-block: var(--spacing-4);
 		cursor: pointer;
 		font-weight: 600;
 	}
