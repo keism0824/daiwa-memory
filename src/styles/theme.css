@@ -176,6 +176,66 @@ body::before,
 	list-style: none;
 }
 
+/* Give narrow reading columns clearer pauses without reducing their width. */
+@media (max-width: 720px) {
+	:root main .post {
+		--article-photo-space: 3rem;
+	}
+
+	:root .post .post-header__figure figure.article-figure {
+		margin-block: 3rem;
+	}
+
+	:root .post .post-header__title-block {
+		margin-block-start: 4rem;
+	}
+
+	:root .post .post-body {
+		padding-block-start: 3rem;
+	}
+
+	:root .post .prose[data-post-content] > * + *,
+	:root .page__body > * + * {
+		margin-block-start: 2em;
+	}
+
+	:root .post .prose[data-post-content] > :is(h1, h2, h3, h4, h5, h6),
+	:root .page__body > :is(h1, h2, h3, h4, h5, h6) {
+		margin-block-start: 4rem;
+	}
+
+	:root .post .prose[data-post-content] > :is(h1, h2, h3, h4, h5, h6) + *,
+	:root .page__body > :is(h1, h2, h3, h4, h5, h6) + * {
+		margin-block-start: 1.5rem;
+	}
+
+	:root .post .prose[data-post-content] > .interview-question {
+		margin-block-start: 2.5rem;
+	}
+
+	:root .post .prose[data-post-content] > .interview-question + p {
+		margin-block-start: 1rem;
+	}
+
+	:root .post .prose[data-post-content] :is(figure.emdash-image, .emdash-gallery),
+	:root .page__body :is(figure.emdash-image, .emdash-gallery) {
+		margin-block: 3rem;
+	}
+
+	:root .post .prose[data-post-content] > :first-child,
+	:root .page__body > :first-child {
+		margin-block-start: 0;
+	}
+
+	:root .reading-page__layout {
+		row-gap: 2rem;
+	}
+
+	.archive-list {
+		gap: 2.5rem;
+	}
+}
+
 /* Keep the brand and navigation readable before the phone layout takes over. */
 @media (min-width: 641px) and (max-width: 900px) {
 	:root .site-header .site-search {
