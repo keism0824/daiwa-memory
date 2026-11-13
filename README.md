@@ -53,6 +53,21 @@ Open http://localhost:4321/_emdash/admin and complete the setup wizard. EmDash r
 
 ## Deploying
 
+### Cache and image descriptions
+
+Public pages use Cloudflare Workers Cache. Article pages expire after 60 seconds;
+lists and pages expire after one hour (with up to 60 seconds of stale revalidation).
+EmDash invalidates the registered content/taxonomy/menu/widget tags on supported
+writes. Search, preview/authenticated responses, and errors are not shared.
+`astro dev` does not cache; verify cache hits and invalidation after deployment.
+See [EmDash route caching](https://docs.emdashcms.com/deployment/route-caching/).
+
+アイキャッチを登録するときは、管理画面で画像の代替テキスト（alt）に
+「何が写っているか」を簡潔に入力してください。撮影場所・年代は確認できた
+場合のみ記載します。表示時は入力済みの alt を優先し、空欄ならキャプション、
+それもなければ「『記事名』の記録写真」という文言で補完します。
+この補完は写真そのものの説明の代わりにはならないため、公開前に確認してください。
+
 Local development responses include `X-Robots-Tag: noindex`. Production builds
 leave indexing to EmDash's SEO settings. For a staging build, set
 `SITE_NOINDEX=true` when running the build (for example in the build environment

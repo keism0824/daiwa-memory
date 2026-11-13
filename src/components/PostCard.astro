@@ -4,6 +4,7 @@ import { Image } from "emdash/ui";
 import Byline from "./Byline.astro";
 import { formatDate } from "../utils/locale";
 import { formatRecordNumber } from "../utils/record-number";
+import { featuredImageAlt } from "../utils/image-alt";
 import { formatReadingTime, getReadingTime } from "../utils/reading-time";
 
 interface Term {
@@ -78,7 +79,7 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 				{visibleTags.length > 0 && (
 					<ul class="post__terms" aria-label="タグ" role="list">
 						{visibleTags.map((tag) => (
-							<li><a href={`/tag/${tag.slug}`}>{tag.label}</a></li>
+							<li><a href={`/tag/${encodeURIComponent(tag.slug)}`}>{tag.label}</a></li>
 						))}
 					</ul>
 				)}
@@ -87,7 +88,7 @@ const visibleTags = tags.slice(0, variant === "card" ? 2 : 3);
 	</div>
 	{image && (
 		<div class="post__image" {...post.edit.featured_image}>
-			<Image image={image} sizes="(min-width: 1080px) 360px, (min-width: 700px) 45vw, 90vw" priority={priority} />
+			<Image image={{ ...image, alt: featuredImageAlt(image, title) }} sizes="(min-width: 1080px) 360px, (min-width: 700px) 45vw, 90vw" priority={priority} />
 		</div>
 	)}
 </article>

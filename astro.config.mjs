@@ -1,4 +1,5 @@
 import cloudflare from "@astrojs/cloudflare";
+import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import react from "@astrojs/react";
 import { d1, r2 } from "@emdash-cms/cloudflare";
 import { defineConfig, fontProviders } from "astro/config";
@@ -7,6 +8,17 @@ import emdash from "emdash/astro";
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
+	cache: { provider: cacheCloudflare() },
+	routeRules: {
+		"/": { maxAge: 3600, swr: 60, tags: ["posts", "pages", "emdash:taxonomy:category"] },
+		"/posts": { maxAge: 3600, swr: 60, tags: ["posts", "emdash:taxonomy:category"] },
+		// Keep comments reasonably fresh even if a cache purge fails.
+		"/posts/[slug]": { maxAge: 60, swr: 0, tags: ["posts", "emdash:taxonomy:category", "emdash:taxonomy:tag"] },
+		"/pages/[slug]": { maxAge: 3600, swr: 60, tags: ["pages"] },
+		"/category/[slug]": { maxAge: 3600, swr: 60, tags: ["posts", "emdash:taxonomy:category"] },
+		"/tag/[slug]": { maxAge: 3600, swr: 60, tags: ["posts", "emdash:taxonomy:tag", "emdash:taxonomy:category"] },
+		"/rss.xml": { maxAge: 3600, swr: 60, tags: ["posts", "emdash:settings"] },
+	},
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
@@ -24,6 +36,7 @@ export default defineConfig({
 	integrations: [
 		react(),
 		emdash({
+			toolbar: "client",
 			database: d1({ binding: "DB", session: "auto", coalesce: true }),
 			storage: r2({ binding: "MEDIA" }),
 		}),

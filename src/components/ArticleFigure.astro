@@ -1,15 +1,18 @@
 ---
 import type { InferCollectionData } from "emdash";
 import { Image } from "emdash/ui";
+import { featuredImageAlt } from "../utils/image-alt";
 
 interface Props {
 	image: NonNullable<InferCollectionData<"posts">["featured_image"]>;
+	title: string;
 }
 
-const { image } = Astro.props;
+const { image, title } = Astro.props;
+const accessibleImage = { ...image, alt: featuredImageAlt(image, title) };
 ---
 
-<figure class="article-figure" data-photo-alt={image.alt ?? ""}>
-	<Image image={image} sizes="(max-width: 720px) 94vw, 48rem" priority />
+<figure class="article-figure" data-photo-alt={accessibleImage.alt}>
+	<Image image={accessibleImage} sizes="(max-width: 720px) 94vw, 48rem" priority />
 	{image.caption?.trim() && <figcaption>{image.caption}</figcaption>}
 </figure>

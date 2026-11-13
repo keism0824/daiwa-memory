@@ -48,7 +48,7 @@ if (Astro.cache?.enabled) Astro.cache.set(categoryResult.cacheHint);
 			<ul role="list">
 				{flattenTerms(categoryResult.data).map((term) => (
 					<li>
-						<h3><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></h3>
+						<h3><a href={`/category/${encodeURIComponent(term.slug)}`} class="paper-link">{term.label}</a></h3>
 						{term.description?.trim() && <p class="paper-reading">{term.description}</p>}
 					</li>
 				))}

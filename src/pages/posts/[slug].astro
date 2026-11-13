@@ -147,12 +147,13 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 							{categories.length > 0 && (
 								<ul class="post-header__categories" aria-label="カテゴリー" role="list">
 									{categories.map((term) => (
-										<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
+										<li><a href={`/category/${encodeURIComponent(term.slug)}`} class="paper-link">{term.label}</a></li>
 									))}
 								</ul>
 							)}
 						</div>
 					)}
+					<p class="post-header__opening-title" {...post.edit.title}>{post.data.title}</p>
 					{post.data.excerpt && (
 						<div class="post-header__preface">
 							<p class="post-header__preface-label">はじめに</p>
@@ -209,7 +210,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 									<dd>
 										<ul class="post-header__categories" role="list">
 											{categories.map((term) => (
-												<li><a href={`/category/${term.slug}`} class="paper-link">{term.label}</a></li>
+												<li><a href={`/category/${encodeURIComponent(term.slug)}`} class="paper-link">{term.label}</a></li>
 											))}
 										</ul>
 									</dd>
@@ -219,7 +220,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 					)}
 					{post.data.featured_image && (
 						<div class="post-header__figure" {...post.edit.featured_image}>
-							<ArticleFigure image={post.data.featured_image} />
+							<ArticleFigure image={post.data.featured_image} title={post.data.title} />
 						</div>
 					)}
 					<div class="post-header__title-block">
@@ -254,7 +255,7 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 					{tags.length > 0 && (
 						<ul class="chips post-topics" aria-label="タグ" role="list">
 							{tags.map((term) => (
-								<li><a href={`/tag/${term.slug}`} class="chip">{term.label}</a></li>
+								<li><a href={`/tag/${encodeURIComponent(term.slug)}`} class="chip">{term.label}</a></li>
 							))}
 						</ul>
 					)}
@@ -493,10 +494,6 @@ const recordNumber = formatRecordNumber(post.data.record_number);
 
 	.post-header__record-number {
 		font-family: var(--font-heading);
-	}
-
-	.post-header__preface {
-		margin-block-start: var(--spacing-8);
 	}
 
 	.post-header__preface-label,
